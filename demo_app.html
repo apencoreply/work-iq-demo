@@ -670,11 +670,11 @@ function renderWebChat(agentId, token, domain) {
   statusEl.className = 'panel-status status-ok';
   document.getElementById(`panel-${agentId}`).classList.add('active');
 
-  // Auto-send "ciao" to trigger the sign-in prompt immediately
+  // Trigger the bot greeting topic silently (no visible user message)
   setTimeout(() => {
     store.dispatch({
-      type: 'WEB_CHAT/SEND_MESSAGE',
-      payload: { text: 'ciao' }
+      type: 'WEB_CHAT/SEND_EVENT',
+      payload: { name: 'startConversation', value: '' }
     });
   }, 1500);
 }
