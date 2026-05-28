@@ -916,16 +916,33 @@ function triggerSingleSignIn(id) {
 
   // Listen for postMessage from Bot Framework redirect page
   let codeHandled = false;
+
+  function extractCode(data) {
+    if (!data) return null;
+    // Direct string of digits
+    if (typeof data === 'string') {
+      const trimmed = data.trim();
+      if (/^\d{4,8}$/.test(trimmed)) return trimmed;
+      // Try parse as JSON string
+      try {
+        const parsed = JSON.parse(trimmed);
+        return extractCode(parsed);
+      } catch(_) {}
+      // Look for code-like number in the string
+      const m = trimmed.match(/\b(\d{6,8})\b/);
+      if (m) return m[1];
+    }
+    if (typeof data === 'object') {
+      return data.verificationCode || data.code || data.authorization_code
+        || data.magicCode || data.magic_code || null;
+    }
+    return null;
+  }
+
   function onMessage(e) {
     if (codeHandled) return;
-    // Bot Framework sends the code in various formats
-    const data = e.data;
-    let code = null;
-    if (typeof data === 'string' && /^\d{4,8}$/.test(data.trim())) {
-      code = data.trim();
-    } else if (data && typeof data === 'object') {
-      code = data.verificationCode || data.code || data.authorization_code || data.magicCode;
-    }
+    console.log('[WorkIQ] postMessage received:', e.data);
+    const code = extractCode(e.data);
     if (code && currentAuthAgent === id) {
       codeHandled = true;
       window.removeEventListener('message', onMessage);
@@ -934,12 +951,12 @@ function triggerSingleSignIn(id) {
   }
   window.addEventListener('message', onMessage);
 
-  // Monitor popup: try to read the code from the page, or show manual fallback when closed
+  // Monitor popup: try clipboard + DOM read, fallback to manual
   if (popup) {
     const check = setInterval(() => {
       try {
         if (codeHandled) { clearInterval(check); return; }
-        // Try to read the popup's content (same-origin only, will fail cross-origin)
+        // Try to read the popup's content (same-origin only)
         try {
           const doc = popup.document;
           if (doc && doc.body) {
@@ -958,12 +975,21 @@ function triggerSingleSignIn(id) {
 
         if (popup.closed) {
           clearInterval(check);
-          setTimeout(() => {
-            window.removeEventListener('message', onMessage);
-            if (!codeHandled && currentAuthAgent === id) {
+          window.removeEventListener('message', onMessage);
+          if (codeHandled) return;
+          // Try reading clipboard for the code
+          navigator.clipboard.readText().then(clipText => {
+            if (codeHandled) return;
+            const code = (clipText || '').trim();
+            if (/^\d{4,8}$/.test(code) && currentAuthAgent === id) {
+              codeHandled = true;
+              sendAuthCode(code);
+            } else {
               showManualCodeInput(id);
             }
-          }, 500);
+          }).catch(() => {
+            if (!codeHandled) showManualCodeInput(id);
+          });
         }
       } catch(e) { clearInterval(check); }
     }, 400);
