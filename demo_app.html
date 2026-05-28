@@ -733,11 +733,11 @@ function renderWebChat(agentId, token, domain) {
   statusEl.className = 'panel-status status-ok';
   document.getElementById(`panel-${agentId}`).classList.add('active');
 
-  // Trigger the bot greeting topic silently (no visible user message)
+  // Send "ciao" to trigger the greeting / sign-in prompt
   setTimeout(() => {
     store.dispatch({
-      type: 'WEB_CHAT/SEND_EVENT',
-      payload: { name: 'startConversation', value: '' }
+      type: 'WEB_CHAT/SEND_MESSAGE',
+      payload: { text: 'ciao' }
     });
   }, 1500);
 }
@@ -796,7 +796,6 @@ function updateSignInButton() {
 
 function showAuthCodeBar(agentId) {
   currentAuthAgent = agentId;
-  // Show auth overlay on the panel itself
   const body = document.getElementById(`body-${agentId}`);
   let overlay = body.querySelector('.auth-overlay');
   if (overlay) overlay.remove();
@@ -807,8 +806,8 @@ function showAuthCodeBar(agentId) {
     <div class="auth-icon">🔐</div>
     <div class="auth-title">${PANEL_NAMES[agentId]}</div>
     <div class="auth-step"><div class="auth-spinner"></div> Login in corso…</div>
-    <div class="auth-sub">Completa il login nel popup — il codice verrà rilevato automaticamente</div>
-    <div class="auth-code-wrap" style="display:none">
+    <div class="auth-sub">Copia il codice dal popup e incollalo qui sotto</div>
+    <div class="auth-code-wrap">
       <input class="auth-code-input" id="auth-code-${agentId}" placeholder="Codice…"
         onkeydown="if(event.key==='Enter')sendAuthCode()"/>
       <button class="auth-code-btn" onclick="sendAuthCode()">Invia ▶</button>
@@ -816,21 +815,11 @@ function showAuthCodeBar(agentId) {
     <button class="auth-skip" onclick="skipAuth()">Salta →</button>
   `;
   body.appendChild(overlay);
-}
 
-// Show the manual code input as fallback
-function showManualCodeInput(agentId) {
-  const body = document.getElementById(`body-${agentId}`);
-  const overlay = body.querySelector('.auth-overlay');
-  if (!overlay) return;
-  const step = overlay.querySelector('.auth-step');
-  const sub = overlay.querySelector('.auth-sub');
-  const wrap = overlay.querySelector('.auth-code-wrap');
-  if (step) step.innerHTML = '⚠️ Codice non rilevato';
-  if (sub) sub.textContent = 'Incolla qui il codice dal popup';
-  if (wrap) wrap.style.display = '';
-  const inp = document.getElementById(`auth-code-${agentId}`);
-  if (inp) inp.focus();
+  setTimeout(() => {
+    const inp = document.getElementById(`auth-code-${agentId}`);
+    if (inp) inp.focus();
+  }, 300);
 }
 
 function hideAuthCodeBar() {
@@ -896,7 +885,6 @@ function triggerSingleSignIn(id) {
     return;
   }
 
-  // Show the code bar for this agent
   showAuthCodeBar(id);
 
   // Intercept popup
@@ -914,85 +902,17 @@ function triggerSingleSignIn(id) {
 
   setTimeout(() => { window.open = origOpen; }, 200);
 
-  // Listen for postMessage from Bot Framework redirect page
-  let codeHandled = false;
-
-  function extractCode(data) {
-    if (!data) return null;
-    // Direct string of digits
-    if (typeof data === 'string') {
-      const trimmed = data.trim();
-      if (/^\d{4,8}$/.test(trimmed)) return trimmed;
-      // Try parse as JSON string
-      try {
-        const parsed = JSON.parse(trimmed);
-        return extractCode(parsed);
-      } catch(_) {}
-      // Look for code-like number in the string
-      const m = trimmed.match(/\b(\d{6,8})\b/);
-      if (m) return m[1];
-    }
-    if (typeof data === 'object') {
-      return data.verificationCode || data.code || data.authorization_code
-        || data.magicCode || data.magic_code || null;
-    }
-    return null;
-  }
-
-  function onMessage(e) {
-    if (codeHandled) return;
-    console.log('[WorkIQ] postMessage received:', e.data);
-    const code = extractCode(e.data);
-    if (code && currentAuthAgent === id) {
-      codeHandled = true;
-      window.removeEventListener('message', onMessage);
-      sendAuthCode(code);
-    }
-  }
-  window.addEventListener('message', onMessage);
-
-  // Monitor popup: try clipboard + DOM read, fallback to manual
+  // When popup closes, focus the code input
   if (popup) {
     const check = setInterval(() => {
       try {
-        if (codeHandled) { clearInterval(check); return; }
-        // Try to read the popup's content (same-origin only)
-        try {
-          const doc = popup.document;
-          if (doc && doc.body) {
-            const text = doc.body.innerText || '';
-            const match = text.match(/\b(\d{6,8})\b/);
-            if (match) {
-              codeHandled = true;
-              clearInterval(check);
-              window.removeEventListener('message', onMessage);
-              popup.close();
-              sendAuthCode(match[1]);
-              return;
-            }
-          }
-        } catch(_) { /* cross-origin, expected */ }
-
         if (popup.closed) {
           clearInterval(check);
-          window.removeEventListener('message', onMessage);
-          if (codeHandled) return;
-          // Try reading clipboard for the code
-          navigator.clipboard.readText().then(clipText => {
-            if (codeHandled) return;
-            const code = (clipText || '').trim();
-            if (/^\d{4,8}$/.test(code) && currentAuthAgent === id) {
-              codeHandled = true;
-              sendAuthCode(code);
-            } else {
-              showManualCodeInput(id);
-            }
-          }).catch(() => {
-            if (!codeHandled) showManualCodeInput(id);
-          });
+          const inp = document.getElementById(`auth-code-${id}`);
+          if (inp) inp.focus();
         }
       } catch(e) { clearInterval(check); }
-    }, 400);
+    }, 300);
   }
 }
 
