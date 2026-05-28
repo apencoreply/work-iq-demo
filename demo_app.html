@@ -250,6 +250,64 @@
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
     .sending { animation: pulse .8s ease-in-out infinite; }
 
+    /* ── PANEL HEADER BUTTONS ── */
+    .panel-actions { display: flex; gap: .3rem; margin-left: auto; align-items: center; }
+    .panel-status { margin-left: 0 !important; }
+    .panel-btn {
+      background: transparent; border: 1px solid transparent;
+      color: var(--muted); border-radius: 5px;
+      width: 26px; height: 26px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; transition: all .15s; padding: 0;
+    }
+    .panel-btn:hover { border-color: var(--border); color: var(--text); background: var(--surface2); }
+    .panel-btn.danger:hover { border-color: #f87171; color: #f87171; }
+
+    /* ── AUTH OVERLAY ── */
+    .auth-overlay {
+      position: absolute; inset: 0; z-index: 10;
+      background: rgba(8,15,28,.92); backdrop-filter: blur(6px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: .8rem;
+      padding: 1.5rem; text-align: center;
+    }
+    .auth-overlay .auth-icon { font-size: 2.2rem; }
+    .auth-overlay .auth-title { font-size: .95rem; font-weight: 700; color: var(--text); }
+    .auth-overlay .auth-sub { font-size: .78rem; color: var(--muted); max-width: 280px; line-height: 1.5; }
+    .auth-overlay .auth-step {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(251,191,36,.12); border: 1px solid rgba(251,191,36,.3);
+      color: #fbbf24; border-radius: 8px; padding: 6px 16px;
+      font-size: .8rem; font-weight: 600;
+    }
+    .auth-overlay .auth-code-wrap {
+      display: flex; gap: .4rem; width: 100%; max-width: 300px;
+    }
+    .auth-overlay .auth-code-input {
+      flex: 1; background: var(--bg); border: 1px solid #fbbf24;
+      color: var(--text); border-radius: 8px; padding: 8px 12px;
+      font-size: .9rem; font-family: ui-monospace, Menlo, monospace;
+      text-align: center; outline: none; letter-spacing: 2px;
+    }
+    .auth-overlay .auth-code-input:focus { box-shadow: 0 0 0 2px rgba(251,191,36,.25); }
+    .auth-overlay .auth-code-btn {
+      background: #92400e; color: #fff; border: none; border-radius: 8px;
+      padding: 8px 14px; cursor: pointer; font-size: .8rem; font-weight: 600;
+      transition: background .15s;
+    }
+    .auth-overlay .auth-code-btn:hover { background: #a3580f; }
+    .auth-overlay .auth-skip {
+      background: none; border: none; color: var(--muted);
+      font-size: .72rem; cursor: pointer; text-decoration: underline;
+      margin-top: .3rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .auth-spinner {
+      width: 20px; height: 20px; border: 2px solid var(--border);
+      border-top-color: #fbbf24; border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
     /* scrollbar */
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -264,6 +322,7 @@
   <span class="subtitle">Demo comparativa — 4 livelli di intelligenza</span>
   <div class="spacer"></div>
   <button class="btn-config" id="btn-signin" onclick="triggerAllSignIns()" style="background:#1e3a5f;border-color:#2563eb;">🔐 Accedi a tutti</button>
+  <button class="btn-config" onclick="resetAllConversations()" title="Riavvia tutte le conversazioni">🔄 Reset tutti</button>
   <button class="btn-config" onclick="openConfig()">⚙ Configura agenti</button>
 </div>
 
@@ -277,15 +336,7 @@
   <button class="btn-send" id="send-btn" onclick="broadcast()">Invia a tutti ▶</button>
 </div>
 
-<!-- ═══ AUTH CODE BAR (hidden by default) ═══ -->
-<div class="broadcast" id="auth-code-bar" style="display:none; background:linear-gradient(90deg,#1a1a2e,#16213e);border-bottom:2px solid #fbbf24;">
-  <label style="color:#fbbf24;">🔐 Codice per <span id="auth-agent-name">—</span> →</label>
-  <input id="auth-code-input"
-    placeholder="Incolla qui il codice di validazione dal popup…"
-    onkeydown="if(event.key==='Enter')sendAuthCode()"
-    style="border-color:#fbbf24;"/>
-  <button class="btn-send" onclick="sendAuthCode()" style="background:#92400e;">Invia codice ▶</button>
-</div>
+<!-- Auth code bar removed — now handled per-panel -->
 
 <!-- ═══ QUICK PROMPTS ═══ -->
 <div class="quick-prompts">
@@ -308,7 +359,10 @@
         <div class="panel-title">Base</div>
         <div class="panel-sub">Solo LLM · nessun tool</div>
       </div>
-      <span class="panel-status status-error" id="status-1">Non configurato</span>
+      <div class="panel-actions">
+        <span class="panel-status status-error" id="status-1">Non configurato</span>
+        <button class="panel-btn danger" onclick="resetConversation(1)" title="Riavvia conversazione">↺</button>
+      </div>
     </div>
     <div class="panel-body" id="body-1">
       <div class="panel-placeholder">
@@ -328,7 +382,10 @@
         <div class="panel-title">Connessioni</div>
         <div class="panel-sub">Mail · Calendar · User</div>
       </div>
-      <span class="panel-status status-error" id="status-2">Non configurato</span>
+      <div class="panel-actions">
+        <span class="panel-status status-error" id="status-2">Non configurato</span>
+        <button class="panel-btn danger" onclick="resetConversation(2)" title="Riavvia conversazione">↺</button>
+      </div>
     </div>
     <div class="panel-body" id="body-2">
       <div class="panel-placeholder">
@@ -348,7 +405,10 @@
         <div class="panel-title">Work IQ Copilot</div>
         <div class="panel-sub">Semantic index · Memory · Cross-app</div>
       </div>
-      <span class="panel-status status-error" id="status-3">Non configurato</span>
+      <div class="panel-actions">
+        <span class="panel-status status-error" id="status-3">Non configurato</span>
+        <button class="panel-btn danger" onclick="resetConversation(3)" title="Riavvia conversazione">↺</button>
+      </div>
     </div>
     <div class="panel-body" id="body-3">
       <div class="panel-placeholder">
@@ -368,7 +428,10 @@
         <div class="panel-title">Completo</div>
         <div class="panel-sub">Copilot + Mail + Calendar + User</div>
       </div>
-      <span class="panel-status status-error" id="status-4">Non configurato</span>
+      <div class="panel-actions">
+        <span class="panel-status status-error" id="status-4">Non configurato</span>
+        <button class="panel-btn danger" onclick="resetConversation(4)" title="Riavvia conversazione">↺</button>
+      </div>
     </div>
     <div class="panel-body" id="body-4">
       <div class="panel-placeholder">
@@ -733,23 +796,47 @@ function updateSignInButton() {
 
 function showAuthCodeBar(agentId) {
   currentAuthAgent = agentId;
-  const bar = document.getElementById('auth-code-bar');
-  document.getElementById('auth-agent-name').textContent = PANEL_NAMES[agentId] || agentId;
-  bar.style.display = '';
-  const input = document.getElementById('auth-code-input');
-  input.value = '';
-  input.focus();
+  // Show auth overlay on the panel itself
+  const body = document.getElementById(`body-${agentId}`);
+  let overlay = body.querySelector('.auth-overlay');
+  if (overlay) overlay.remove();
+
+  overlay = document.createElement('div');
+  overlay.className = 'auth-overlay';
+  overlay.innerHTML = `
+    <div class="auth-icon">🔐</div>
+    <div class="auth-title">${PANEL_NAMES[agentId]}</div>
+    <div class="auth-step"><div class="auth-spinner"></div> In attesa del codice…</div>
+    <div class="auth-sub">Dopo il login nel popup, copia il codice di validazione e incollalo qui sotto</div>
+    <div class="auth-code-wrap">
+      <input class="auth-code-input" id="auth-code-${agentId}" placeholder="Codice…"
+        onkeydown="if(event.key==='Enter')sendAuthCode()"/>
+      <button class="auth-code-btn" onclick="sendAuthCode()">Invia ▶</button>
+    </div>
+    <button class="auth-skip" onclick="skipAuth()">Salta →</button>
+  `;
+  body.appendChild(overlay);
+
+  setTimeout(() => {
+    const inp = document.getElementById(`auth-code-${agentId}`);
+    if (inp) inp.focus();
+  }, 300);
 }
 
 function hideAuthCodeBar() {
-  document.getElementById('auth-code-bar').style.display = 'none';
+  if (currentAuthAgent) {
+    const body = document.getElementById(`body-${currentAuthAgent}`);
+    const overlay = body.querySelector('.auth-overlay');
+    if (overlay) overlay.remove();
+  }
   currentAuthAgent = null;
 }
 
 function sendAuthCode() {
-  const input = document.getElementById('auth-code-input');
+  const input = document.getElementById(`auth-code-${currentAuthAgent}`);
+  if (!input || !currentAuthAgent) return;
   const code = input.value.trim();
-  if (!code || !currentAuthAgent) return;
+  if (!code) return;
 
   // Send code ONLY to the current authenticating agent
   if (stores[currentAuthAgent]) {
@@ -763,7 +850,8 @@ function sendAuthCode() {
   statusEl.textContent = 'Autenticato';
   statusEl.className = 'panel-status status-ok';
 
-  input.value = '';
+  // Remove overlay
+  hideAuthCodeBar();
   
   // Continue to next agent in queue
   if (authQueue.length > 0) {
@@ -771,8 +859,14 @@ function sendAuthCode() {
     setTimeout(() => {
       triggerSingleSignIn(nextId);
     }, 800);
-  } else {
-    hideAuthCodeBar();
+  }
+}
+
+function skipAuth() {
+  hideAuthCodeBar();
+  if (authQueue.length > 0) {
+    const nextId = authQueue.shift();
+    setTimeout(() => triggerSingleSignIn(nextId), 400);
   }
 }
 
@@ -811,17 +905,38 @@ function triggerSingleSignIn(id) {
 
   setTimeout(() => { window.open = origOpen; }, 200);
 
-  // When popup closes, focus the code input
+  // When popup closes, focus the code input in the panel overlay
   if (popup) {
     const check = setInterval(() => {
       try {
         if (popup.closed) {
           clearInterval(check);
-          document.getElementById('auth-code-input').focus();
+          const inp = document.getElementById(`auth-code-${id}`);
+          if (inp) inp.focus();
         }
       } catch(e) { clearInterval(check); }
     }, 300);
   }
+}
+
+// ═══════════════════════════════════════════════════
+// RESET CONVERSATION
+// ═══════════════════════════════════════════════════
+function resetConversation(agentId) {
+  const saved = localStorage.getItem(`wiq_config_${agentId}`) || DEFAULT_URLS[agentId];
+  if (!saved) return;
+
+  // Clean up existing state
+  delete stores[agentId];
+  delete directLines[agentId];
+  delete pendingSignInBtns[agentId];
+
+  // Re-mount
+  mountAgent(agentId, saved);
+}
+
+function resetAllConversations() {
+  AGENTS.forEach(({ id }) => resetConversation(id));
 }
 
 // ═══════════════════════════════════════════════════
