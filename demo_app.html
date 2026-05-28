@@ -669,6 +669,14 @@ function renderWebChat(agentId, token, domain) {
   statusEl.textContent = 'Connesso';
   statusEl.className = 'panel-status status-ok';
   document.getElementById(`panel-${agentId}`).classList.add('active');
+
+  // Auto-send "ciao" to trigger the sign-in prompt immediately
+  setTimeout(() => {
+    store.dispatch({
+      type: 'WEB_CHAT/SEND_MESSAGE',
+      payload: { text: 'ciao' }
+    });
+  }, 1500);
 }
 
 // ── Show error ────────────────────────────────────────────────────────────
