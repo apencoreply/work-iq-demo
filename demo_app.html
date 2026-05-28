@@ -806,9 +806,9 @@ function showAuthCodeBar(agentId) {
   overlay.innerHTML = `
     <div class="auth-icon">🔐</div>
     <div class="auth-title">${PANEL_NAMES[agentId]}</div>
-    <div class="auth-step"><div class="auth-spinner"></div> In attesa del codice…</div>
-    <div class="auth-sub">Dopo il login nel popup, copia il codice di validazione e incollalo qui sotto</div>
-    <div class="auth-code-wrap">
+    <div class="auth-step"><div class="auth-spinner"></div> Login in corso…</div>
+    <div class="auth-sub">Completa il login nel popup — il codice verrà rilevato automaticamente</div>
+    <div class="auth-code-wrap" style="display:none">
       <input class="auth-code-input" id="auth-code-${agentId}" placeholder="Codice…"
         onkeydown="if(event.key==='Enter')sendAuthCode()"/>
       <button class="auth-code-btn" onclick="sendAuthCode()">Invia ▶</button>
@@ -816,11 +816,21 @@ function showAuthCodeBar(agentId) {
     <button class="auth-skip" onclick="skipAuth()">Salta →</button>
   `;
   body.appendChild(overlay);
+}
 
-  setTimeout(() => {
-    const inp = document.getElementById(`auth-code-${agentId}`);
-    if (inp) inp.focus();
-  }, 300);
+// Show the manual code input as fallback
+function showManualCodeInput(agentId) {
+  const body = document.getElementById(`body-${agentId}`);
+  const overlay = body.querySelector('.auth-overlay');
+  if (!overlay) return;
+  const step = overlay.querySelector('.auth-step');
+  const sub = overlay.querySelector('.auth-sub');
+  const wrap = overlay.querySelector('.auth-code-wrap');
+  if (step) step.innerHTML = '⚠️ Codice non rilevato';
+  if (sub) sub.textContent = 'Incolla qui il codice dal popup';
+  if (wrap) wrap.style.display = '';
+  const inp = document.getElementById(`auth-code-${agentId}`);
+  if (inp) inp.focus();
 }
 
 function hideAuthCodeBar() {
@@ -832,11 +842,10 @@ function hideAuthCodeBar() {
   currentAuthAgent = null;
 }
 
-function sendAuthCode() {
+function sendAuthCode(codeOverride) {
   const input = document.getElementById(`auth-code-${currentAuthAgent}`);
-  if (!input || !currentAuthAgent) return;
-  const code = input.value.trim();
-  if (!code) return;
+  const code = codeOverride || (input && input.value.trim());
+  if (!code || !currentAuthAgent) return;
 
   // Send code ONLY to the current authenticating agent
   if (stores[currentAuthAgent]) {
@@ -905,17 +914,59 @@ function triggerSingleSignIn(id) {
 
   setTimeout(() => { window.open = origOpen; }, 200);
 
-  // When popup closes, focus the code input in the panel overlay
+  // Listen for postMessage from Bot Framework redirect page
+  let codeHandled = false;
+  function onMessage(e) {
+    if (codeHandled) return;
+    // Bot Framework sends the code in various formats
+    const data = e.data;
+    let code = null;
+    if (typeof data === 'string' && /^\d{4,8}$/.test(data.trim())) {
+      code = data.trim();
+    } else if (data && typeof data === 'object') {
+      code = data.verificationCode || data.code || data.authorization_code || data.magicCode;
+    }
+    if (code && currentAuthAgent === id) {
+      codeHandled = true;
+      window.removeEventListener('message', onMessage);
+      sendAuthCode(code);
+    }
+  }
+  window.addEventListener('message', onMessage);
+
+  // Monitor popup: try to read the code from the page, or show manual fallback when closed
   if (popup) {
     const check = setInterval(() => {
       try {
+        if (codeHandled) { clearInterval(check); return; }
+        // Try to read the popup's content (same-origin only, will fail cross-origin)
+        try {
+          const doc = popup.document;
+          if (doc && doc.body) {
+            const text = doc.body.innerText || '';
+            const match = text.match(/\b(\d{6,8})\b/);
+            if (match) {
+              codeHandled = true;
+              clearInterval(check);
+              window.removeEventListener('message', onMessage);
+              popup.close();
+              sendAuthCode(match[1]);
+              return;
+            }
+          }
+        } catch(_) { /* cross-origin, expected */ }
+
         if (popup.closed) {
           clearInterval(check);
-          const inp = document.getElementById(`auth-code-${id}`);
-          if (inp) inp.focus();
+          setTimeout(() => {
+            window.removeEventListener('message', onMessage);
+            if (!codeHandled && currentAuthAgent === id) {
+              showManualCodeInput(id);
+            }
+          }, 500);
         }
       } catch(e) { clearInterval(check); }
-    }, 300);
+    }, 400);
   }
 }
 
