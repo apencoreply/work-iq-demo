@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Work IQ Demo — Documentazione</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --surface: #0f1a2b;
+      --border: #1e293b;
+      --text: #e6edf7;
+      --muted: #8b9bb5;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59,130,246,.12);
+      --green: #34d399;
+      --green-soft: rgba(52,211,153,.12);
+      --amber: #fbbf24;
+      --amber-soft: rgba(251,191,36,.12);
+      --red: #f87171;
+      --red-soft: rgba(248,113,113,.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167,139,250,.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(11,18,32,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+    }
+    nav .inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; gap: 2rem;
+      height: 56px;
+    }
+    nav .logo {
+      font-weight: 700; font-size: 1.05rem;
+      color: var(--accent); white-space: nowrap;
+    }
+    nav a {
+      color: var(--muted); text-decoration: none; font-size: .85rem;
+      transition: color .15s;
+    }
+    nav a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 1100px; margin: 0 auto;
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 2.4rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: .6rem;
+    }
+    .hero .sub {
+      font-size: 1.15rem; color: var(--muted);
+      max-width: 700px; margin: 0 auto 2rem;
+    }
+    .hero .badge {
+      display: inline-block;
+      background: var(--green-soft); color: var(--green);
+      border: 1px solid var(--green);
+      border-radius: 999px; padding: 4px 14px;
+      font-size: .8rem; font-weight: 600;
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      max-width: 1100px; margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+    section + section { border-top: 1px solid var(--border); }
+    h2 {
+      font-size: 1.5rem; font-weight: 700;
+      margin-bottom: 1.2rem;
+    }
+    h3 {
+      font-size: 1.1rem; font-weight: 600;
+      margin-bottom: .6rem; margin-top: 1.4rem;
+    }
+    p, li { color: var(--text); }
+    p + p { margin-top: .8rem; }
+    ul { padding-left: 1.4rem; }
+    li { margin-bottom: .3rem; }
+    strong { color: #fff; }
+    code {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 2px 7px;
+      font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+      font-size: .85em;
+    }
+    pre {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.2rem 1.4rem;
+      overflow-x: auto; font-size: .82rem; line-height: 1.55;
+      font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+      margin: 1rem 0;
+    }
+    blockquote {
+      border-left: 3px solid var(--accent);
+      background: var(--accent-soft);
+      padding: .8rem 1.2rem; border-radius: 0 8px 8px 0;
+      margin: 1rem 0; color: var(--text);
+      font-style: italic;
+    }
+
+    /* ── CARDS ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 1.4rem 0;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.4rem;
+      transition: border-color .2s;
+    }
+    .card:hover { border-color: var(--accent); }
+    .card .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: 8px;
+      font-weight: 800; font-size: .9rem;
+      margin-bottom: .6rem;
+    }
+    .card h3 { margin-top: 0; }
+    .card p { color: var(--muted); font-size: .88rem; }
+    .card .tag {
+      display: inline-block; margin-top: .6rem;
+      font-size: .72rem; font-weight: 600;
+      padding: 2px 10px; border-radius: 999px;
+    }
+
+    /* ── LEVEL COLORS ── */
+    .lvl-1 .num { background: var(--red-soft); color: var(--red); }
+    .lvl-1 .tag { background: var(--red-soft); color: var(--red); }
+    .lvl-2 .num { background: var(--amber-soft); color: var(--amber); }
+    .lvl-2 .tag { background: var(--amber-soft); color: var(--amber); }
+    .lvl-3 .num { background: var(--purple-soft); color: var(--purple); }
+    .lvl-3 .tag { background: var(--purple-soft); color: var(--purple); }
+    .lvl-4 .num { background: var(--green-soft); color: var(--green); }
+    .lvl-4 .tag { background: var(--green-soft); color: var(--green); }
+
+    /* ── TABLE ── */
+    table {
+      width: 100%; border-collapse: collapse;
+      margin: 1rem 0; font-size: .88rem;
+    }
+    th, td {
+      text-align: left; padding: .7rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      color: var(--muted); font-weight: 600;
+      font-size: .78rem; text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    tr:hover td { background: rgba(255,255,255,.02); }
+
+    /* ── TIMELINE ── */
+    .timeline { position: relative; padding-left: 2rem; margin: 1.4rem 0; }
+    .timeline::before {
+      content: ""; position: absolute; left: 7px; top: 0; bottom: 0;
+      width: 2px; background: var(--border);
+    }
+    .timeline .step {
+      position: relative; margin-bottom: 2rem;
+    }
+    .timeline .step::before {
+      content: ""; position: absolute;
+      left: -2rem; top: 6px;
+      width: 12px; height: 12px;
+      border-radius: 50%; border: 2px solid var(--accent);
+      background: var(--bg);
+    }
+    .timeline .step.active::before { background: var(--accent); }
+    .timeline .step .label {
+      font-size: .75rem; color: var(--accent); font-weight: 600;
+      text-transform: uppercase; letter-spacing: .04em;
+      margin-bottom: .2rem;
+    }
+    .timeline .step .content {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1rem 1.2rem;
+    }
+    .timeline .step .content p { font-size: .88rem; }
+
+    /* ── PROMPT BOX ── */
+    .prompt-box {
+      background: linear-gradient(135deg, rgba(59,130,246,.08), rgba(167,139,250,.08));
+      border: 1px solid var(--accent);
+      border-radius: 12px; padding: 1.2rem 1.4rem;
+      margin: 1rem 0;
+      font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+      font-size: .9rem; color: var(--text);
+      position: relative;
+    }
+    .prompt-box .copy-label {
+      position: absolute; top: .6rem; right: .8rem;
+      font-size: .68rem; color: var(--muted);
+      font-family: -apple-system, "Segoe UI", sans-serif;
+      text-transform: uppercase; letter-spacing: .04em;
+    }
+
+    /* ── RESPONSE EXAMPLES ── */
+    .response {
+      border-radius: 10px; padding: 1rem 1.2rem;
+      margin: .8rem 0; font-size: .88rem;
+    }
+    .response.r1 { background: var(--red-soft); border-left: 3px solid var(--red); }
+    .response.r2 { background: var(--amber-soft); border-left: 3px solid var(--amber); }
+    .response.r3 { background: var(--purple-soft); border-left: 3px solid var(--purple); }
+    .response.r4 { background: var(--green-soft); border-left: 3px solid var(--green); }
+    .response .tag-inline {
+      font-size: .7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .04em;
+      margin-bottom: .4rem; display: block;
+    }
+    .response.r1 .tag-inline { color: var(--red); }
+    .response.r2 .tag-inline { color: var(--amber); }
+    .response.r3 .tag-inline { color: var(--purple); }
+    .response.r4 .tag-inline { color: var(--green); }
+
+    /* ── ARCHITECTURE DIAGRAM ── */
+    .arch {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center; gap: .6rem;
+      margin: 1.4rem 0;
+    }
+    .arch-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1rem; text-align: center;
+    }
+    .arch-box.highlight { border-color: var(--accent); }
+    .arch-arrow { color: var(--muted); font-size: 1.4rem; }
+    .arch-label { font-size: .75rem; color: var(--muted); text-align: center; }
+
+    /* ── FOOTER ── */
+    footer {
+      max-width: 1100px; margin: 0 auto;
+      padding: 2rem; border-top: 1px solid var(--border);
+      color: var(--muted); font-size: .78rem;
+      display: flex; justify-content: space-between;
+      flex-wrap: wrap; gap: .6rem;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 1.6rem; }
+      .card-grid { grid-template-columns: 1fr; }
+      .arch { grid-template-columns: 1fr; }
+      .arch-arrow { transform: rotate(90deg); }
+      nav .inner { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <div class="inner">
+    <span class="logo">Work IQ Demo</span>
+    <a href="#obiettivo">Obiettivo</a>
+    <a href="#workiq">Cos'è Work IQ</a>
+    <a href="#livelli">4 Livelli</a>
+    <a href="#demo">Script Demo</a>
+    <a href="#setup">Setup</a>
+    <a href="#takeaway">Takeaway</a>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <h1>Work IQ Demo</h1>
+  <p class="sub">
+    Stesso prompt, stesso agente, 4 livelli di intelligenza.<br>
+    Il pubblico vede la differenza con i propri occhi.
+  </p>
+  <span class="badge">✓ Prototipo implementato e funzionante</span>
+</div>
+
+<!-- ═══ OBIETTIVO ═══ -->
+<section id="obiettivo">
+  <h2>🎯 Obiettivo della demo</h2>
+  <p>
+    Dimostrare visivamente <strong>cos'è Work IQ</strong> e perché è il salto di qualità
+    per gli agenti enterprise. La demo mostra come lo <strong>stesso agente</strong>
+    Copilot Studio dia risposte radicalmente diverse a seconda del livello
+    di intelligenza connesso.
+  </p>
+  <blockquote>
+    Work IQ è il salto da "chatbot che risponde" ad "agente che capisce
+    il tuo lavoro e lo fa avanzare".
+  </blockquote>
+</section>
+
+<!-- ═══ COS'È WORK IQ ═══ -->
+<section id="workiq">
+  <h2>🧠 Cos'è Work IQ</h2>
+  <p>
+    <strong>Work IQ</strong> è l'intelligence layer di Microsoft 365 Copilot. 
+    Espone server <strong>MCP</strong> (Model Context Protocol) che danno ai tuoi agenti
+    Copilot Studio accesso in tempo reale ai dati e al contesto lavorativo della tua organizzazione.
+  </p>
+
+  <h3>Tre livelli integrati</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h3>📊 Dati</h3>
+      <p>Unifica segnali da file, email, riunioni, chat e sistemi aziendali in tutto Microsoft 365.</p>
+    </div>
+    <div class="card">
+      <h3>🧩 Contesto</h3>
+      <p>Costruisce comprensione persistente di come persone e team lavorano — memory, priorità, pattern.</p>
+    </div>
+    <div class="card">
+      <h3>⚡ Skills &amp; Tools</h3>
+      <p>Modelli, capacità e strumenti MCP per ragionare e agire — con governance e osservabilità.</p>
+    </div>
+  </div>
+
+  <h3>Work IQ Copilot vs. Singole connessioni</h3>
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Work IQ Copilot</th>
+        <th>Singole connessioni</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Cos'è</strong></td>
+        <td>M365 Copilot come sub-agente del tuo agente custom</td>
+        <td>Chiamate dirette alle API Graph (Mail, Calendar, User…)</td>
+      </tr>
+      <tr>
+        <td><strong>Semantic index</strong></td>
+        <td>✅ Ricerca per significato, non keyword</td>
+        <td>❌ Ricerca diretta</td>
+      </tr>
+      <tr>
+        <td><strong>Memory</strong></td>
+        <td>✅ Preferenze, istruzioni, pattern storici</td>
+        <td>❌</td>
+      </tr>
+      <tr>
+        <td><strong>Cross-app</strong></td>
+        <td>✅ Email + doc + meeting + CRM automatico</td>
+        <td>Solo i tool esplicitamente collegati</td>
+      </tr>
+      <tr>
+        <td><strong>Azioni</strong></td>
+        <td>❌ Solo comprensione e risposte</td>
+        <td>✅ Invia email, crea eventi, ecc.</td>
+      </tr>
+    </tbody>
+  </table>
+  <blockquote>
+    Work IQ Copilot <strong>capisce</strong>. Le singole connessioni <strong>agiscono</strong>.
+    Il tuo agente <strong>orchestra</strong> entrambi.
+  </blockquote>
+</section>
+
+<!-- ═══ 4 LIVELLI ═══ -->
+<section id="livelli">
+  <h2>📈 Progressione a 4 livelli</h2>
+  <p>
+    4 agenti in Copilot Studio con lo stesso prompt di base.
+    Cambia solo cosa ci colleghi. Stesso prompt di test per tutti.
+  </p>
+
+  <div class="card-grid">
+    <div class="card lvl-1">
+      <div class="num">1</div>
+      <h3>Base</h3>
+      <p>Solo LLM, nessun tool. Risposta generica — non sa nulla del tuo lavoro.</p>
+      <span class="tag">❌ Non capisce · ❌ Non agisce</span>
+    </div>
+    <div class="card lvl-2">
+      <div class="num">2</div>
+      <h3>Connessioni</h3>
+      <p>Work IQ Mail + Calendar + User. Vede le tue app, cerca email, crea eventi.</p>
+      <span class="tag">◐ Capisce parzialmente · ✅ Agisce</span>
+    </div>
+    <div class="card lvl-3">
+      <div class="num">3</div>
+      <h3>Copilot</h3>
+      <p>Solo Work IQ Copilot. Semantic index, memory, ragionamento cross-app profondo.</p>
+      <span class="tag">✅ Capisce in profondità · ❌ Non agisce</span>
+    </div>
+    <div class="card lvl-4">
+      <div class="num">4</div>
+      <h3>Completo</h3>
+      <p>Work IQ Copilot + tutte le connessioni. Intelligenza + Azione.</p>
+      <span class="tag">✅ Capisce · ✅ Agisce</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DEMO SCRIPT ═══ -->
+<section id="demo">
+  <h2>🎬 Script demo — stesso prompt, 4 risposte</h2>
+
+  <h3>Il prompt</h3>
+  <div class="prompt-box">
+    <span class="copy-label">Prompt</span>
+    Cosa devo sapere prima della mia prossima riunione?
+  </div>
+  <p style="color:var(--muted); font-size:.85rem;">
+    Prerequisito: avere una riunione reale nel calendario con almeno un partecipante
+    che abbia scritto un'email di recente.
+  </p>
+
+  <h3>Le 4 risposte</h3>
+
+  <div class="response r1">
+    <span class="tag-inline">1 · Agente Base</span>
+    "Non ho accesso al tuo calendario o alle tue email.
+    In generale, prima di una riunione è buona norma rivedere l'agenda,
+    preparare domande, e verificare i materiali condivisi."
+  </div>
+  <p><strong>💬 Al pubblico:</strong> <em>"Risposta educata ma inutile. Non sa nulla del mio lavoro.
+  È solo un modello di linguaggio generico."</em></p>
+
+  <div class="response r2">
+    <span class="tag-inline">2 · Agente Connessioni</span>
+    "La tua prossima riunione è alle <strong>14:00</strong> — Review budget Q3.
+    Partecipanti: <strong>Luca Bianchi</strong> (Head of Finance), <strong>Anna Verdi</strong>.
+    Luca ti ha scritto ieri: 'Ho alcune domande sui numeri del Q3.'"
+  </div>
+  <p><strong>💬 Al pubblico:</strong> <em>"Ora vede il mio calendario, la mia email, chi sono le persone.
+  Sta collegando i dati. Ma fa ricerche puntuali — non capisce il contesto storico."</em></p>
+
+  <div class="response r3">
+    <span class="tag-inline">3 · Agente Copilot</span>
+    "La tua prossima riunione riguarda la review del budget Q3.
+    Negli ultimi 2 mesi hai scambiato 14 email con Luca Bianchi su questo tema.
+    Il documento 'Budget_Q3_v4.xlsx' su SharePoint è stato aggiornato 3 giorni fa da Anna.
+    Nel Teams call della scorsa settimana, Luca ha menzionato un disallineamento
+    tra i numeri EMEA e APAC."
+  </div>
+  <p><strong>💬 Al pubblico:</strong> <em>"Ha cercato nei documenti SharePoint, nei messaggi Teams,
+  nella cronologia di collaborazione. Questo è il semantic index di Work IQ.
+  Ma se gli chiedo 'manda un'email a Luca', non può farlo."</em></p>
+
+  <div class="response r4">
+    <span class="tag-inline">4 · Agente Completo</span>
+    Stessa risposta ricca del livello 3. Poi si aggiunge il follow-up:
+  </div>
+  <div class="prompt-box" style="margin-top:.4rem;">
+    <span class="copy-label">Follow-up</span>
+    Manda a Luca un'email: digli che ho visto le sue domande e ne parliamo alle 14.
+  </div>
+  <div class="response r4" style="margin-top:.4rem;">
+    <span class="tag-inline">4 · Risposta</span>
+    "Ho inviato l'email a Luca Bianchi con oggetto 'Re: Budget Q3 — ci vediamo alle 14'."
+  </div>
+  <p><strong>💬 Al pubblico:</strong> <em>"Work IQ Copilot ha capito il contesto.
+  Le connessioni hanno eseguito l'azione. Questo è un agente completo: intelligenza + azione."</em></p>
+</section>
+
+<!-- ═══ SETUP ═══ -->
+<section id="setup">
+  <h2>⚙️ Setup</h2>
+
+  <h3>Prerequisiti</h3>
+  <table>
+    <thead>
+      <tr><th>Cosa serve</th><th>Note</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Tenant Microsoft 365</td><td>Con dati reali (email, eventi, utenti)</td></tr>
+      <tr><td>Licenza Microsoft 365 Copilot</td><td>Richiesta per Work IQ MCP</td></tr>
+      <tr><td>Accesso a Copilot Studio</td><td><a href="https://copilotstudio.microsoft.com" style="color:var(--accent)">copilotstudio.microsoft.com</a></td></tr>
+    </tbody>
+  </table>
+
+  <h3>System Prompt (uguale per tutti e 4 gli agenti)</h3>
+  <p>Copia nella sezione <strong>Instructions</strong> di ogni agente. È progettato per adattarsi
+  automaticamente ai tool disponibili.</p>
+  <pre>You are ACME Assistant, an intelligent work companion for employees of ACME Corp.
+Your role is to help the user stay on top of their work: meetings, emails,
+people, and priorities.
+
+## Core principles
+
+1. CONTEXT FIRST — before answering, gather all the context you can from
+   the tools available to you. If you have calendar tools, check the calendar.
+   If you have email tools, check relevant emails. If you have people tools,
+   enrich names with roles. If you have Copilot search, use it to find
+   documents, chats, and cross-app context.
+
+2. CONNECT THE DOTS — when you find related information across sources
+   (e.g., an email from a meeting attendee), surface it proactively.
+   The user should not have to ask follow-up questions to get a
+   complete picture.
+
+3. ACT, DON'T DESCRIBE — if the user asks you to do something (send email,
+   create event, reschedule) and you have the tools, do it. Ask for one
+   confirmation before irreversible actions. Never say "I would do X" if
+   you can actually do X.
+
+4. BE HONEST ABOUT LIMITS — if you don't have access to a tool or data
+   source, say so clearly. Don't fabricate information.
+
+## Output format
+- Bullet points for lists.
+- Bold for names, times, and key facts.
+- For meeting briefings: **Name** · Role · Context.
+- Keep responses under 200 words unless asked for more.
+
+## Language
+Reply in the same language the user writes in.</pre>
+
+  <h3>Configurazione agenti</h3>
+  <div class="timeline">
+    <div class="step active">
+      <div class="label">Agente 1 — Base</div>
+      <div class="content">
+        <p><strong>Tool:</strong> Nessuno</p>
+        <p>Solo il system prompt. L'agente ha solo l'LLM generico.</p>
+      </div>
+    </div>
+    <div class="step active">
+      <div class="label">Agente 2 — Connessioni</div>
+      <div class="content">
+        <p><strong>Tool:</strong> Work IQ Mail + Work IQ Calendar + Work IQ User</p>
+        <p>Tab Strumenti → Aggiungi strumento → Model Context Protocol → cerca e aggiungi
+        <code>mail</code>, <code>calendar</code>, <code>user</code>. Crea una connessione per ognuno.</p>
+      </div>
+    </div>
+    <div class="step active">
+      <div class="label">Agente 3 — Copilot</div>
+      <div class="content">
+        <p><strong>Tool:</strong> Work IQ Copilot (solo questo)</p>
+        <p>Tab Strumenti → Aggiungi strumento → Model Context Protocol → cerca <code>copilot</code>.</p>
+      </div>
+    </div>
+    <div class="step active">
+      <div class="label">Agente 4 — Completo</div>
+      <div class="content">
+        <p><strong>Tool:</strong> Work IQ Copilot + Mail + Calendar + User</p>
+        <p>Tutti e 4 i tool insieme. Questa è la configurazione completa.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Pre-autorizzazione</h3>
+  <p>
+    Per ogni agente, apri il pannello <strong>Test</strong> e invia un prompt qualsiasi.
+    Quando appare il banner di consenso per ogni tool, clicca <strong>Consenti</strong>.
+    Fallo prima della demo per evitare interruzioni.
+  </p>
+</section>
+
+<!-- ═══ TAKEAWAY ═══ -->
+<section id="takeaway">
+  <h2>💡 Messaggi chiave</h2>
+
+  <table>
+    <thead>
+      <tr><th>Messaggio</th><th>Come dirlo</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>L'agente base è un LLM generico</strong></td>
+        <td>"Senza contesto, l'AI non serve in azienda."</td>
+      </tr>
+      <tr>
+        <td><strong>Le connessioni danno vista e azione</strong></td>
+        <td>"Vede le tue app e fa cose. Ma cerca per keyword."</td>
+      </tr>
+      <tr>
+        <td><strong>Work IQ Copilot dà comprensione profonda</strong></td>
+        <td>"Il semantic index connette i puntini nel tempo. È il salto di qualità."</td>
+      </tr>
+      <tr>
+        <td><strong>Insieme sono l'agente completo</strong></td>
+        <td>"Capire + Agire = valore reale."</td>
+      </tr>
+      <tr>
+        <td><strong>Governance enterprise</strong></td>
+        <td>"Ogni tool è controllabile dall'admin center. Ogni chiamata è tracciabile in Defender."</td>
+      </tr>
+      <tr>
+        <td><strong>MCP = standard aperto</strong></td>
+        <td>"Domani aggiungi SharePoint, Dynamics, i tuoi sistemi custom — stessa architettura."</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:2rem;">Riepilogo visivo</h3>
+  <table>
+    <thead>
+      <tr><th>Livello</th><th>Capisce</th><th>Agisce</th><th>Fonti</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1. Base</strong></td>
+        <td style="color:var(--red)">❌</td>
+        <td style="color:var(--red)">❌</td>
+        <td style="color:var(--muted)">Nessuna</td>
+      </tr>
+      <tr>
+        <td><strong>2. Connessioni</strong></td>
+        <td style="color:var(--amber)">◐ Parziale</td>
+        <td style="color:var(--green)">✅</td>
+        <td style="color:var(--muted)">Mail, Calendar, User</td>
+      </tr>
+      <tr>
+        <td><strong>3. Copilot</strong></td>
+        <td style="color:var(--green)">✅✅</td>
+        <td style="color:var(--red)">❌</td>
+        <td style="color:var(--muted)">Semantic Index, Memory, tutto M365</td>
+      </tr>
+      <tr>
+        <td><strong>4. Completo</strong></td>
+        <td style="color:var(--green)">✅✅</td>
+        <td style="color:var(--green)">✅</td>
+        <td style="color:var(--muted)">Tutto</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ TROUBLESHOOTING ═══ -->
+<section>
+  <h2>🛠 Troubleshooting</h2>
+  <table>
+    <thead>
+      <tr><th>Problema</th><th>Soluzione</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>L'agente non usa i tool MCP</td>
+        <td>Verifica che le connessioni siano attive nella tab Strumenti</td>
+      </tr>
+      <tr>
+        <td>Consenso richiesto durante la demo</td>
+        <td>Pre-autorizza tutti i tool nel pannello Test</td>
+      </tr>
+      <tr>
+        <td>Risponde in inglese</td>
+        <td>Verifica che il system prompt includa "Reply in the same language"</td>
+      </tr>
+      <tr>
+        <td>Work IQ Copilot non dà contesto ricco</td>
+        <td>Servono dati reali nel tenant: email, file, chat Teams recenti</td>
+      </tr>
+      <tr>
+        <td>Work IQ non disponibile</td>
+        <td>Licenza M365 Copilot attiva + feature abilitata nell'admin center</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <span>Work IQ Demo — Documentazione</span>
+  <span>Copilot Studio · Work IQ MCP · Microsoft 365</span>
+</footer>
+
+</body>
+</html>

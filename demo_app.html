@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Work IQ — Demo Comparativa</title>
+  <script src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js"></script>
+  <style>
+    :root {
+      --bg: #080f1c;
+      --surface: #0d1625;
+      --surface2: #111e30;
+      --border: #1e2f45;
+      --text: #e6edf7;
+      --muted: #7a8fa8;
+      --c1: #f87171; --c1s: rgba(248,113,113,.12);
+      --c2: #fbbf24; --c2s: rgba(251,191,36,.12);
+      --c3: #a78bfa; --c3s: rgba(167,139,250,.12);
+      --c4: #34d399; --c4s: rgba(52,211,153,.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex; flex-direction: column;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex; align-items: center; gap: 1rem;
+      padding: .6rem 1.2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .topbar .logo { font-weight: 700; font-size: .95rem; color: #60a5fa; }
+    .topbar .subtitle { font-size: .78rem; color: var(--muted); }
+    .topbar .spacer { flex: 1; }
+    .btn-config {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 5px 14px; border-radius: 6px;
+      cursor: pointer; font-size: .8rem; transition: border-color .15s;
+    }
+    .btn-config:hover { border-color: #60a5fa; }
+
+    /* ── BROADCAST BAR ── */
+    .broadcast {
+      display: flex; gap: .6rem; align-items: center;
+      padding: .55rem 1.2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .broadcast label {
+      font-size: .75rem; color: var(--muted);
+      white-space: nowrap; font-weight: 600;
+    }
+    .broadcast input {
+      flex: 1;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px;
+      padding: 7px 12px; font-size: .88rem;
+      font-family: inherit; outline: none;
+      transition: border-color .15s;
+    }
+    .broadcast input:focus { border-color: #60a5fa; }
+    .broadcast input::placeholder { color: var(--muted); }
+    .btn-send {
+      background: #1d4ed8; color: #fff;
+      border: none; border-radius: 8px;
+      padding: 7px 18px; cursor: pointer;
+      font-size: .88rem; font-weight: 600;
+      white-space: nowrap; transition: background .15s;
+    }
+    .btn-send:hover { background: #2563eb; }
+    .btn-send:active { background: #1e40af; }
+    .btn-clear {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 8px;
+      padding: 7px 14px; cursor: pointer;
+      font-size: .8rem; transition: all .15s;
+    }
+    .btn-clear:hover { border-color: var(--muted); color: var(--text); }
+
+    /* ── QUICK PROMPTS ── */
+    .quick-prompts {
+      display: flex; gap: .4rem; align-items: center;
+      padding: .35rem 1.2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0; overflow-x: auto;
+    }
+    .quick-prompts span {
+      font-size: .7rem; color: var(--muted);
+      white-space: nowrap; margin-right: .2rem;
+    }
+    .qp {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 999px;
+      padding: 3px 12px; cursor: pointer;
+      font-size: .73rem; white-space: nowrap;
+      transition: all .15s;
+    }
+    .qp:hover { border-color: #60a5fa; color: var(--text); }
+
+    /* ── PANELS GRID ── */
+    .panels {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 6px; padding: 6px;
+      overflow: hidden;
+    }
+    .panel {
+      display: flex; flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .panel.active { border-color: var(--panel-color, #60a5fa); }
+
+    .panel-header {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .5rem .85rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .panel-num {
+      width: 22px; height: 22px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .72rem; font-weight: 800;
+      background: var(--panel-bg); color: var(--panel-color);
+    }
+    .panel-title { font-size: .82rem; font-weight: 700; }
+    .panel-sub { font-size: .72rem; color: var(--muted); }
+    .panel-status {
+      margin-left: auto;
+      font-size: .68rem; padding: 2px 8px; border-radius: 999px;
+      font-weight: 600;
+    }
+    .status-ok { background: var(--c4s); color: var(--c4); }
+    .status-warn { background: var(--c2s); color: var(--c2); }
+    .status-error { background: var(--c1s); color: var(--c1); }
+    .status-info { background: rgba(96,165,250,.12); color: #60a5fa; }
+
+    .panel-body { flex: 1; overflow: hidden; position: relative; }
+    .panel-body webchat-view,
+    .panel-body > div { height: 100% !important; }
+
+    /* placeholder shown before secrets configured */
+    .panel-placeholder {
+      height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: .6rem;
+      padding: 1.5rem; text-align: center;
+    }
+    .panel-placeholder .icon { font-size: 2rem; opacity: .3; }
+    .panel-placeholder p { font-size: .82rem; color: var(--muted); }
+    .panel-placeholder code {
+      background: var(--surface2); border: 1px solid var(--border);
+      padding: 2px 7px; border-radius: 5px;
+      font-size: .75rem; color: var(--text);
+    }
+    .btn-open-chat {
+      background: #1d4ed8; color: #fff;
+      border: none; border-radius: 8px;
+      padding: 10px 24px; cursor: pointer;
+      font-size: .9rem; font-weight: 600;
+      transition: background .15s;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .btn-open-chat:hover { background: #2563eb; }
+    .btn-open-all {
+      background: #065f46; color: #fff;
+      border: none; border-radius: 8px;
+      padding: 7px 18px; cursor: pointer;
+      font-size: .82rem; font-weight: 600;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+    .btn-open-all:hover { background: #047857; }
+
+    /* ── WEBCHAT OVERRIDES ── */
+    .webchat-wrap { height: 100%; }
+
+    /* ── CONFIG MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,.7); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.8rem;
+      width: 560px; max-width: 95vw; max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h2 { font-size: 1.15rem; margin-bottom: .4rem; }
+    .modal p { font-size: .83rem; color: var(--muted); margin-bottom: 1.2rem; }
+    .modal label {
+      display: flex; flex-direction: column; gap: .3rem;
+      margin-bottom: 1rem;
+    }
+    .modal label span {
+      font-size: .78rem; font-weight: 600;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .modal label .dot {
+      width: 10px; height: 10px; border-radius: 3px;
+    }
+    .modal input {
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 7px;
+      padding: 8px 12px; font-size: .83rem;
+      font-family: ui-monospace, Menlo, monospace;
+      outline: none; transition: border-color .15s;
+    }
+    .modal input:focus { border-color: #60a5fa; }
+    .modal input::placeholder { color: var(--muted); font-family: inherit; }
+    .modal-actions { display: flex; gap: .6rem; margin-top: 1.2rem; }
+    .btn-primary {
+      flex: 1; background: #1d4ed8; color: #fff;
+      border: none; border-radius: 8px; padding: 9px;
+      cursor: pointer; font-size: .88rem; font-weight: 600;
+      transition: background .15s;
+    }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-secondary {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 8px; padding: 9px 18px;
+      cursor: pointer; font-size: .88rem; transition: all .15s;
+    }
+    .btn-secondary:hover { color: var(--text); border-color: var(--muted); }
+
+    .modal .hint {
+      background: rgba(96,165,250,.08); border: 1px solid rgba(96,165,250,.2);
+      border-radius: 8px; padding: .7rem 1rem;
+      font-size: .78rem; color: #93c5fd;
+      margin-bottom: 1.2rem; line-height: 1.5;
+    }
+    .modal .hint ol { padding-left: 1.2rem; margin-top: .3rem; }
+    .modal .hint li { margin-bottom: .15rem; }
+
+    /* Sending indicator */
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .sending { animation: pulse .8s ease-in-out infinite; }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══ TOPBAR ═══ -->
+<div class="topbar">
+  <span class="logo">⚡ Work IQ</span>
+  <span class="subtitle">Demo comparativa — 4 livelli di intelligenza</span>
+  <div class="spacer"></div>
+  <button class="btn-config" id="btn-signin" onclick="triggerAllSignIns()" style="background:#1e3a5f;border-color:#2563eb;">🔐 Accedi a tutti</button>
+  <button class="btn-config" onclick="openConfig()">⚙ Configura agenti</button>
+</div>
+
+<!-- ═══ BROADCAST BAR ═══ -->
+<div class="broadcast">
+  <label>Invia a tutti →</label>
+  <input id="broadcast-input"
+    placeholder="Scrivi un prompt e premi Invia — tutti e 4 gli agenti risponderanno…"
+    onkeydown="if(event.key==='Enter')broadcast()"/>
+  <button class="btn-clear" onclick="clearInput()" title="Pulisci">✕</button>
+  <button class="btn-send" id="send-btn" onclick="broadcast()">Invia a tutti ▶</button>
+</div>
+
+<!-- ═══ AUTH CODE BAR (hidden by default) ═══ -->
+<div class="broadcast" id="auth-code-bar" style="display:none; background:linear-gradient(90deg,#1a1a2e,#16213e);border-bottom:2px solid #fbbf24;">
+  <label style="color:#fbbf24;">🔐 Codice per <span id="auth-agent-name">—</span> →</label>
+  <input id="auth-code-input"
+    placeholder="Incolla qui il codice di validazione dal popup…"
+    onkeydown="if(event.key==='Enter')sendAuthCode()"
+    style="border-color:#fbbf24;"/>
+  <button class="btn-send" onclick="sendAuthCode()" style="background:#92400e;">Invia codice ▶</button>
+</div>
+
+<!-- ═══ QUICK PROMPTS ═══ -->
+<div class="quick-prompts">
+  <span>Prompt rapidi:</span>
+  <button class="qp" onclick="setPrompt('Cosa devo sapere prima della mia prossima riunione?')">📅 Prossima riunione</button>
+  <button class="qp" onclick="setPrompt('Chi sono i partecipanti alla mia prossima call e cosa mi hanno scritto di recente?')">👥 Partecipanti &amp; email</button>
+  <button class="qp" onclick="setPrompt('Ho conflitti nel calendario questa settimana?')">⚠ Conflitti agenda</button>
+  <button class="qp" onclick="setPrompt('Riassumi le email non lette più importanti di oggi.')">📧 Email importanti</button>
+  <button class="qp" onclick="setPrompt('Crea un evento Teams domani alle 10 con il mio manager.')">➕ Crea evento</button>
+</div>
+
+<!-- ═══ PANELS ═══ -->
+<div class="panels">
+
+  <!-- Panel 1 — Base -->
+  <div class="panel" id="panel-1" style="--panel-color:var(--c1);--panel-bg:var(--c1s)">
+    <div class="panel-header">
+      <div class="panel-num">1</div>
+      <div>
+        <div class="panel-title">Base</div>
+        <div class="panel-sub">Solo LLM · nessun tool</div>
+      </div>
+      <span class="panel-status status-error" id="status-1">Non configurato</span>
+    </div>
+    <div class="panel-body" id="body-1">
+      <div class="panel-placeholder">
+        <div class="icon">🤖</div>
+        <p>Agente base senza tool.<br/>
+        Aggiungi il <strong>Token Endpoint URL</strong> per connettere questo pannello.</p>
+        <p><a href="#" onclick="openConfig()" style="color:#60a5fa;font-size:.8rem;">⚙ Configura →</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel 2 — Connessioni -->
+  <div class="panel" id="panel-2" style="--panel-color:var(--c2);--panel-bg:var(--c2s)">
+    <div class="panel-header">
+      <div class="panel-num">2</div>
+      <div>
+        <div class="panel-title">Connessioni</div>
+        <div class="panel-sub">Mail · Calendar · User</div>
+      </div>
+      <span class="panel-status status-error" id="status-2">Non configurato</span>
+    </div>
+    <div class="panel-body" id="body-2">
+      <div class="panel-placeholder">
+        <div class="icon">🔌</div>
+        <p>Agente con Work IQ Mail, Calendar e User.<br/>
+        Vede le tue app e può agire.</p>
+        <p><a href="#" onclick="openConfig()" style="color:#60a5fa;font-size:.8rem;">⚙ Configura →</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel 3 — Copilot -->
+  <div class="panel" id="panel-3" style="--panel-color:var(--c3);--panel-bg:var(--c3s)">
+    <div class="panel-header">
+      <div class="panel-num">3</div>
+      <div>
+        <div class="panel-title">Work IQ Copilot</div>
+        <div class="panel-sub">Semantic index · Memory · Cross-app</div>
+      </div>
+      <span class="panel-status status-error" id="status-3">Non configurato</span>
+    </div>
+    <div class="panel-body" id="body-3">
+      <div class="panel-placeholder">
+        <div class="icon">🧠</div>
+        <p>Agente con Work IQ Copilot.<br/>
+        Capisce in profondità, ma non agisce.</p>
+        <p><a href="#" onclick="openConfig()" style="color:#60a5fa;font-size:.8rem;">⚙ Configura →</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel 4 — Completo -->
+  <div class="panel" id="panel-4" style="--panel-color:var(--c4);--panel-bg:var(--c4s)">
+    <div class="panel-header">
+      <div class="panel-num">4</div>
+      <div>
+        <div class="panel-title">Completo</div>
+        <div class="panel-sub">Copilot + Mail + Calendar + User</div>
+      </div>
+      <span class="panel-status status-error" id="status-4">Non configurato</span>
+    </div>
+    <div class="panel-body" id="body-4">
+      <div class="panel-placeholder">
+        <div class="icon">✅</div>
+        <p>Agente completo: intelligenza + azione.<br/>
+        Work IQ Copilot + tutte le connessioni.</p>
+        <p><a href="#" onclick="openConfig()" style="color:#60a5fa;font-size:.8rem;">⚙ Configura →</a></p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ CONFIG MODAL ═══ -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2>⚙ Configura gli agenti</h2>
+    <p>Incolla il <strong>Segreto Direct Line</strong> oppure l'<strong>URL embed iframe</strong> di ogni agente.</p>
+
+    <div class="hint">
+      <strong>Opzione A — Direct Line secret (broadcast attivo):</strong>
+      <ol>
+        <li>Agente → <strong>Impostazioni → Sicurezza → Sicurezza canale Web</strong></li>
+        <li>Copia <strong>Segreto 1</strong> e incollalo qui sotto</li>
+      </ol>
+      <strong style="display:block;margin-top:.6rem">Opzione B — URL iframe embed (se il secret non funziona):</strong>
+      <ol>
+        <li>Agente → <strong>Pubblica → Canali → App Web personalizzata</strong></li>
+        <li>Copia il <strong>src</strong> dall'iframe nel codice embed</li>
+      </ol>
+    </div>
+
+    <label>
+      <span><span class="dot" style="background:var(--c1)"></span> Agente 1 — Base</span>
+      <input id="secret-1" type="text" placeholder="Secret oppure https://... (URL embed)"/>
+    </label>
+    <label>
+      <span><span class="dot" style="background:var(--c2)"></span> Agente 2 — Connessioni</span>
+      <input id="secret-2" type="text" placeholder="Secret oppure https://... (URL embed)"/>
+    </label>
+    <label>
+      <span><span class="dot" style="background:var(--c3)"></span> Agente 3 — Work IQ Copilot</span>
+      <input id="secret-3" type="text" placeholder="Secret oppure https://... (URL embed)"/>
+    </label>
+    <label>
+      <span><span class="dot" style="background:var(--c4)"></span> Agente 4 — Completo</span>
+      <input id="secret-4" type="text" placeholder="Secret oppure https://... (URL embed)"/>
+    </label>
+
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="applyConfig()">✓ Connetti agenti</button>
+      <button class="btn-secondary" onclick="closeConfig()">Annulla</button>
+      <button class="btn-secondary" onclick="clearCache()" style="margin-left:auto;border-color:#f87171;color:#f87171;" title="Cancella localStorage e ricarica">🗑 Pulisci cache</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+const AGENTS = [
+  { id: 1, storageKey: 'wiq_config_1' },
+  { id: 2, storageKey: 'wiq_config_2' },
+  { id: 3, storageKey: 'wiq_config_3' },
+  { id: 4, storageKey: 'wiq_config_4' },
+];
+
+// ── Token Endpoint URLs (Direct Line) ──
+const DEFAULT_URLS = {
+  1: 'https://fbcd999c4ff6e83a946e6f1a8d209f.57.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cr63a_ACMEcorpAgentv0/directline/token?api-version=2022-03-01-preview',
+  2: 'https://fbcd999c4ff6e83a946e6f1a8d209f.57.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cr63a_ACMEcorpAgentv01/directline/token?api-version=2022-03-01-preview',
+  3: 'https://fbcd999c4ff6e83a946e6f1a8d209f.57.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cr63a_ACMEcorpAgentv02/directline/token?api-version=2022-03-01-preview',
+  4: 'https://fbcd999c4ff6e83a946e6f1a8d209f.57.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cr63a_ACMEcorpAgent/directline/token?api-version=2022-03-01-preview',
+};
+
+const stores = {};      // webchat stores per agent id
+const directLines = {}; // directLine instances per agent id
+
+// ═══════════════════════════════════════════════════
+// WEBCHAT STORE
+// ═══════════════════════════════════════════════════
+function createCustomStore() {
+  return window.WebChat.createStore({}, ({ dispatch }) => next => action => {
+    return next(action);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// WEBCHAT STYLE OPTIONS
+// ═══════════════════════════════════════════════════
+function styleFor(agentId) {
+  const colors = { 1: '#f87171', 2: '#fbbf24', 3: '#a78bfa', 4: '#34d399' };
+  return {
+    backgroundColor: '#080f1c',
+    bubbleBackground: '#0d1625',
+    bubbleBorderColor: '#1e2f45',
+    bubbleBorderRadius: 10,
+    bubbleFromUserBackground: '#1e3a5f',
+    bubbleFromUserBorderColor: '#2563eb',
+    bubbleFromUserBorderRadius: 10,
+    bubbleTextColor: '#e6edf7',
+    bubbleFromUserTextColor: '#e6edf7',
+    sendBoxBackground: '#080f1c',
+    sendBoxBorderTop: '1px solid #1e2f45',
+    sendBoxHeight: 42,
+    sendBoxTextColor: '#e6edf7',
+    sendBoxPlaceholderColor: '#7a8fa8',
+    sendBoxButtonColor: colors[agentId],
+    timestampColor: '#7a8fa8',
+    avatarSize: 28,
+    hideUploadButton: true,
+    botAvatarBackgroundColor: '#0d1625',
+    userAvatarBackgroundColor: '#1e3a5f',
+    fontSizeSmall: '0.78rem',
+    primaryFont: '-apple-system, "Segoe UI", system-ui, sans-serif',
+  };
+}
+
+// ═══════════════════════════════════════════════════
+// DETECT INPUT TYPE
+// ═══════════════════════════════════════════════════
+function detectInputType(value) {
+  if (value.startsWith('https://') || value.startsWith('http://')) {
+    if (value.includes('/powervirtualagents/') && value.includes('directline/token')) {
+      return 'tokenEndpoint'; // powerplatform.com token endpoint
+    }
+    if (value.includes('/copilotstudio/') && value.includes('/conversations')) {
+      return 'copilotStudio'; // Copilot Studio Dataverse-backed API
+    }
+    return 'iframe'; // any other URL = embed src
+  }
+  return 'secret'; // Direct Line secret string
+}
+
+// ═══════════════════════════════════════════════════
+// MOUNT AGENT — auto-detects: secret | tokenEndpoint | iframe
+// ═══════════════════════════════════════════════════
+async function mountAgent(agentId, value) {
+  const type = detectInputType(value);
+  if (type === 'iframe') {
+    mountAgentIframe(agentId, value);
+  } else if (type === 'tokenEndpoint') {
+    await mountAgentTokenEndpoint(agentId, value);
+  } else if (type === 'copilotStudio') {
+    await mountAgentCopilotStudio(agentId, value);
+  } else {
+    await mountAgentSecret(agentId, value);
+  }
+}
+
+// ── Secret approach (powerva.microsoft.com token exchange) ──────────────
+async function mountAgentSecret(agentId, secret) {
+  const bodyEl = document.getElementById(`body-${agentId}`);
+  const statusEl = document.getElementById(`status-${agentId}`);
+
+  statusEl.textContent = 'Connessione…';
+  statusEl.className = 'panel-status status-info';
+  bodyEl.innerHTML = `<div class="panel-placeholder"><div class="icon sending">⏳</div><p>Connessione in corso…</p></div>`;
+
+  try {
+    // Exchange secret for token via powerva.microsoft.com
+    const tokenResp = await fetch(
+      'https://powerva.microsoft.com/api/botmanagement/v1/directline/token',
+      { method: 'GET', headers: { 'Authorization': `Bearer ${secret}` } }
+    );
+    if (!tokenResp.ok) throw new Error(`Token exchange HTTP ${tokenResp.status}`);
+    const tokenData = await tokenResp.json();
+    if (!tokenData.token) throw new Error('Token non ricevuto');
+
+    renderWebChat(agentId, tokenData.token, tokenData.directLineUri);
+  } catch (err) {
+    console.error(`Agente ${agentId} — secret error:`, err);
+    showError(agentId, err.message + ' — prova con l\'URL iframe da "Pubblica → Canali → App Web personalizzata"');
+  }
+}
+
+// ── Token Endpoint URL approach (powerplatform.com) ─────────────────────
+async function mountAgentTokenEndpoint(agentId, tokenEndpoint) {
+  const bodyEl = document.getElementById(`body-${agentId}`);
+  const statusEl = document.getElementById(`status-${agentId}`);
+
+  statusEl.textContent = 'Connessione…';
+  statusEl.className = 'panel-status status-info';
+  bodyEl.innerHTML = `<div class="panel-placeholder"><div class="icon sending">⏳</div><p>Connessione in corso…</p></div>`;
+
+  try {
+    const envEndpoint = tokenEndpoint.slice(0, tokenEndpoint.indexOf('/powervirtualagents'));
+    const apiVersion = tokenEndpoint.slice(tokenEndpoint.indexOf('api-version')).split('=')[1];
+    const regionalURL = `${envEndpoint}/powervirtualagents/regionalchannelsettings?api-version=${apiVersion}`;
+
+    const [settingsResp, tokenResp] = await Promise.all([
+      fetch(regionalURL),
+      fetch(tokenEndpoint)
+    ]);
+    if (!settingsResp.ok) throw new Error(`Regional settings HTTP ${settingsResp.status}`);
+    if (!tokenResp.ok) throw new Error(`Token endpoint HTTP ${tokenResp.status}`);
+
+    const settings = await settingsResp.json();
+    const tokenData = await tokenResp.json();
+    if (!tokenData.token) throw new Error('Token non ricevuto');
+
+    const dlUrl = settings.channelUrlsById?.directline;
+    renderWebChat(agentId, tokenData.token, dlUrl ? `${dlUrl}v3/directline` : undefined);
+  } catch (err) {
+    console.error(`Agente ${agentId} — token endpoint error:`, err);
+    showError(agentId, err.message);
+  }
+}
+
+// ── Copilot Studio Dataverse-backed API approach ────────────────────────
+async function mountAgentCopilotStudio(agentId, conversationsUrl) {
+  const bodyEl = document.getElementById(`body-${agentId}`);
+  const statusEl = document.getElementById(`status-${agentId}`);
+
+  statusEl.textContent = 'Connessione…';
+  statusEl.className = 'panel-status status-info';
+  bodyEl.innerHTML = `<div class="panel-placeholder"><div class="icon sending">⏳</div><p>Connessione in corso…</p></div>`;
+
+  try {
+    // Create conversation → returns { conversationId, token }
+    const tokenResp = await fetch(conversationsUrl, { method: 'POST' });
+    if (!tokenResp.ok) throw new Error(`Conversations API HTTP ${tokenResp.status}`);
+    const tokenData = await tokenResp.json();
+    if (!tokenData.token) throw new Error('Token non ricevuto dalla Conversations API');
+
+    // Try to get regional channel settings for DirectLine domain
+    const envEndpoint = conversationsUrl.slice(0, conversationsUrl.indexOf('/copilotstudio'));
+    const apiVersion = new URL(conversationsUrl).searchParams.get('api-version') || '2022-03-01-preview';
+
+    let dlDomain;
+    try {
+      const settingsResp = await fetch(
+        `${envEndpoint}/powervirtualagents/regionalchannelsettings?api-version=${apiVersion}`
+      );
+      if (settingsResp.ok) {
+        const settings = await settingsResp.json();
+        const dlUrl = settings.channelUrlsById?.directline;
+        if (dlUrl) dlDomain = `${dlUrl}v3/directline`;
+      }
+    } catch (_) { /* regional settings not available, proceed without */ }
+
+    renderWebChat(agentId, tokenData.token, dlDomain);
+  } catch (err) {
+    console.error(`Agente ${agentId} — Copilot Studio error:`, err);
+    showError(agentId, err.message);
+  }
+}
+
+// ── Iframe embed approach ────────────────────────────────────────────────
+function mountAgentIframe(agentId, embedUrl) {
+  const bodyEl = document.getElementById(`body-${agentId}`);
+  const statusEl = document.getElementById(`status-${agentId}`);
+
+  statusEl.textContent = 'Pronto';
+  statusEl.className = 'panel-status status-ok';
+  document.getElementById(`panel-${agentId}`).classList.add('active');
+
+  // Store the URL for popup opening
+  bodyEl.dataset.embedUrl = embedUrl;
+
+  bodyEl.innerHTML = `<div class="panel-placeholder">
+    <div class="icon" style="opacity:1">💬</div>
+    <p style="color:var(--text);font-weight:600;margin-bottom:.3rem">Chat pronta (iframe)</p>
+    <p>Embed caricato.</p>
+  </div>`;
+
+  stores[agentId] = null;
+}
+
+// ── Render WebChat (shared) ──────────────────────────────────────────────
+function renderWebChat(agentId, token, domain) {
+  const bodyEl = document.getElementById(`body-${agentId}`);
+  const statusEl = document.getElementById(`status-${agentId}`);
+
+  bodyEl.innerHTML = '';
+  const wrapper = document.createElement('div');
+  wrapper.style.height = '100%';
+  bodyEl.appendChild(wrapper);
+
+  const store = createCustomStore();
+  stores[agentId] = store;
+
+  const dlConfig = { token };
+  if (domain) dlConfig.domain = domain;
+
+  const directLine = window.WebChat.createDirectLine(dlConfig);
+  directLines[agentId] = directLine;
+
+  window.WebChat.renderWebChat(
+    { directLine, store, styleOptions: styleFor(agentId), locale: 'it-IT' },
+    wrapper
+  );
+
+  // Auto-detect sign-in buttons and track them
+  setupSignInObserver(agentId, wrapper);
+
+  statusEl.textContent = 'Connesso';
+  statusEl.className = 'panel-status status-ok';
+  document.getElementById(`panel-${agentId}`).classList.add('active');
+}
+
+// ── Show error ────────────────────────────────────────────────────────────
+function showError(agentId, msg) {
+  const bodyEl = document.getElementById(`body-${agentId}`);
+  const statusEl = document.getElementById(`status-${agentId}`);
+  statusEl.textContent = 'Errore';
+  statusEl.className = 'panel-status status-error';
+  bodyEl.innerHTML = `<div class="panel-placeholder">
+    <div class="icon">⚠</div>
+    <p style="color:#f87171;font-size:.78rem;">${msg}</p>
+    <p style="margin-top:.5rem"><a href="#" onclick="openConfig()" style="color:#60a5fa;font-size:.78rem;">⚙ Riprova →</a></p>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// PANEL NAMES
+// ═══════════════════════════════════════════════════
+const PANEL_NAMES = { 1: 'Base', 2: 'Connessioni', 3: 'Copilot', 4: 'Completo' };
+const pendingSignInBtns = {}; // agentId -> button element
+let currentAuthAgent = null;   // agentId currently authenticating
+let authQueue = [];            // remaining agent ids to auth
+
+// Watch for sign-in buttons rendered by WebChat
+function setupSignInObserver(agentId, wrapper) {
+  const observer = new MutationObserver(() => {
+    const btns = wrapper.querySelectorAll('button');
+    for (const btn of btns) {
+      const text = btn.textContent.trim().toLowerCase();
+      if ((text.includes('sign in') || text.includes('accedi') || text.includes('accesso') || text.includes('login')) && !btn.dataset.wiqTracked) {
+        btn.dataset.wiqTracked = 'true';
+        pendingSignInBtns[agentId] = btn;
+        const statusEl = document.getElementById(`status-${agentId}`);
+        statusEl.textContent = 'Login richiesto';
+        statusEl.className = 'panel-status status-warn';
+        updateSignInButton();
+      }
+    }
+  });
+  observer.observe(wrapper, { childList: true, subtree: true });
+}
+
+function updateSignInButton() {
+  const btn = document.getElementById('btn-signin');
+  const count = Object.keys(pendingSignInBtns).length;
+  if (count > 0) {
+    btn.textContent = `🔐 Accedi (${count} agenti)`;
+    btn.style.animation = 'pulse .8s ease-in-out infinite';
+  } else {
+    btn.textContent = '✅ Autenticato';
+    btn.style.animation = '';
+  }
+}
+
+function showAuthCodeBar(agentId) {
+  currentAuthAgent = agentId;
+  const bar = document.getElementById('auth-code-bar');
+  document.getElementById('auth-agent-name').textContent = PANEL_NAMES[agentId] || agentId;
+  bar.style.display = '';
+  const input = document.getElementById('auth-code-input');
+  input.value = '';
+  input.focus();
+}
+
+function hideAuthCodeBar() {
+  document.getElementById('auth-code-bar').style.display = 'none';
+  currentAuthAgent = null;
+}
+
+function sendAuthCode() {
+  const input = document.getElementById('auth-code-input');
+  const code = input.value.trim();
+  if (!code || !currentAuthAgent) return;
+
+  // Send code ONLY to the current authenticating agent
+  if (stores[currentAuthAgent]) {
+    stores[currentAuthAgent].dispatch({
+      type: 'WEB_CHAT/SEND_MESSAGE',
+      payload: { text: code },
+    });
+  }
+
+  const statusEl = document.getElementById(`status-${currentAuthAgent}`);
+  statusEl.textContent = 'Autenticato';
+  statusEl.className = 'panel-status status-ok';
+
+  input.value = '';
+  
+  // Continue to next agent in queue
+  if (authQueue.length > 0) {
+    const nextId = authQueue.shift();
+    setTimeout(() => {
+      triggerSingleSignIn(nextId);
+    }, 800);
+  } else {
+    hideAuthCodeBar();
+  }
+}
+
+function triggerAllSignIns() {
+  const ids = Object.keys(pendingSignInBtns).map(Number).sort();
+  if (ids.length === 0) {
+    alert('Tutti gli agenti sono già autenticati.');
+    return;
+  }
+  authQueue = ids.slice(1);
+  triggerSingleSignIn(ids[0]);
+}
+
+function triggerSingleSignIn(id) {
+  const btn = pendingSignInBtns[id];
+  if (!btn) {
+    if (authQueue.length > 0) triggerSingleSignIn(authQueue.shift());
+    return;
+  }
+
+  // Show the code bar for this agent
+  showAuthCodeBar(id);
+
+  // Intercept popup
+  const origOpen = window.open;
+  let popup = null;
+  window.open = function(...args) {
+    popup = origOpen.apply(this, args);
+    window.open = origOpen;
+    return popup;
+  };
+
+  btn.click();
+  delete pendingSignInBtns[id];
+  updateSignInButton();
+
+  setTimeout(() => { window.open = origOpen; }, 200);
+
+  // When popup closes, focus the code input
+  if (popup) {
+    const check = setInterval(() => {
+      try {
+        if (popup.closed) {
+          clearInterval(check);
+          document.getElementById('auth-code-input').focus();
+        }
+      } catch(e) { clearInterval(check); }
+    }, 300);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// BROADCAST
+// ═══════════════════════════════════════════════════
+function broadcast() {
+  const input = document.getElementById('broadcast-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  let sent = 0;
+  AGENTS.forEach(({ id }) => {
+    if (stores[id]) {
+      stores[id].dispatch({
+        type: 'WEB_CHAT/SEND_MESSAGE',
+        payload: { text },
+      });
+      sent++;
+      const panel = document.getElementById(`panel-${id}`);
+      panel.style.opacity = '.7';
+      setTimeout(() => { panel.style.opacity = '1'; }, 300);
+    }
+  });
+
+  if (sent > 0) {
+    input.value = '';
+    const btn = document.getElementById('send-btn');
+    btn.textContent = `Inviato a ${sent} agenti ✓`;
+    btn.style.background = '#065f46';
+    setTimeout(() => {
+      btn.textContent = 'Invia a tutti ▶';
+      btn.style.background = '';
+    }, 1800);
+  }
+}
+
+function clearInput() {
+  document.getElementById('broadcast-input').value = '';
+  document.getElementById('broadcast-input').focus();
+}
+
+function setPrompt(text) {
+  document.getElementById('broadcast-input').value = text;
+  document.getElementById('broadcast-input').focus();
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('send-btn');
+    btn.textContent = '✓ Copiato!';
+    btn.style.background = '#065f46';
+    setTimeout(() => {
+      btn.textContent = '📋 Copia prompt';
+      btn.style.background = '';
+    }, 1500);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// CONFIG MODAL
+// ═══════════════════════════════════════════════════
+function openConfig() {
+  AGENTS.forEach(({ id, storageKey }) => {
+    const saved = localStorage.getItem(storageKey) || DEFAULT_URLS[id];
+    const input = document.getElementById(`secret-${id}`);
+    if (saved) input.value = saved;
+  });
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeConfig() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+function applyConfig() {
+  AGENTS.forEach(({ id, storageKey }) => {
+    const input = document.getElementById(`secret-${id}`);
+    let val = input.value.trim();
+    if (val) {
+      localStorage.setItem(storageKey, val);
+      mountAgent(id, val);
+    } else {
+      const saved = localStorage.getItem(storageKey);
+      if (saved && !stores[id]) mountAgent(id, saved);
+    }
+  });
+  closeConfig();
+}
+
+function clearCache() {
+  if (confirm('Cancellare tutto il localStorage e ricaricare la pagina? I 4 agenti si riconnetteranno con gli URL di default.')) {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.reload();
+  }
+}
+
+// Close modal on overlay click
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeConfig();
+});
+
+// Enter key on input fields in modal
+document.querySelectorAll('.modal input').forEach(inp => {
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') applyConfig();
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// INIT — restore from localStorage
+// ═══════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  // Clear stale localStorage entries that may contain old URLs
+  AGENTS.forEach(({ storageKey }) => {
+    const saved = localStorage.getItem(storageKey);
+    if (saved && !saved.includes('directline/token')) {
+      localStorage.removeItem(storageKey);
+    }
+  });
+
+  let anyConfigured = false;
+  AGENTS.forEach(({ id, storageKey }) => {
+    const saved = localStorage.getItem(storageKey) || DEFAULT_URLS[id];
+    if (saved) {
+      mountAgent(id, saved);
+      anyConfigured = true;
+    }
+  });
+  if (!anyConfigured) setTimeout(openConfig, 600);
+});
+</script>
+</body>
+</html>
