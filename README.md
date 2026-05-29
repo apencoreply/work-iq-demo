@@ -55,28 +55,32 @@ Gli agenti 2, 3 e 4 richiedono autenticazione Microsoft per accedere ai dati M36
 │  1. L'app carica → 4 pannelli WebChat si connettono │
 │     via token endpoint (Direct Line, no auth)       │
 ├─────────────────────────────────────────────────────┤
-│  2. Agenti 2-4 mostrano "Per continuare, effettua   │
-│     l'accesso" con pulsante "Accesso"               │
+│  2. Appare il LOGIN GATE: overlay bloccante a       │
+│     schermo intero che impedisce l'uso della demo   │
+│     finché l'utente non si autentica                │
 ├─────────────────────────────────────────────────────┤
-│  3. Clicca "🔐 Accedi (3 agenti)" nella topbar     │
+│  3. Clicca "🔑 Accedi con Microsoft"               │
 │     → si apre un popup Microsoft per il primo       │
 │     agente                                          │
 ├─────────────────────────────────────────────────────┤
 │  4. Fai login (email + password + MFA)              │
 │     → il popup mostra un codice di validazione      │
 ├─────────────────────────────────────────────────────┤
-│  5. Incolla il codice nella barra gialla            │
-│     "🔐 Codice per [Agente]" → premi Invio         │
+│  5. Copia il codice (Ctrl+C) e torna alla pagina:  │
+│     - Su localhost: il codice viene letto           │
+│       automaticamente dalla clipboard               │
+│     - Su file://: incolla nel campo codice          │
 ├─────────────────────────────────────────────────────┤
 │  6. Il popup per l'agente successivo si apre        │
-│     automaticamente (login via cookie, senza        │
+│     automaticamente (SSO via cookie, senza          │
 │     reinserire le credenziali)                      │
 ├─────────────────────────────────────────────────────┤
-│  7. Copia il nuovo codice → incolla → ripeti        │
-│     (3 codici totali, 1 solo login manuale)         │
+│  7. Copia il nuovo codice → torna alla pagina →    │
+│     ripeti (3 codici totali, 1 solo login)          │
 ├─────────────────────────────────────────────────────┤
-│  8. Tutti autenticati! Usa "Invia a tutti ▶"       │
-│     per mandare lo stesso prompt a tutti e 4        │
+│  8. Login gate scompare, le chat vengono svuotate   │
+│     automaticamente → demo pronta e pulita!         │
+│     Usa "Invia a tutti ▶" per i prompt              │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -106,12 +110,14 @@ Browser                    Bot Framework              Microsoft Entra ID
 
 ## Esecuzione locale
 
+> **Nota:** usare `localhost` (non `file://`) per abilitare la lettura automatica del codice dalla clipboard.
+
 ```bash
 # Avvia il server HTTP
-python3 -m http.server 8800
+python3 -m http.server 8080
 
 # Apri nel browser
-open http://127.0.0.1:8800/demo_app.html
+open http://localhost:8080/demo_app.html
 ```
 
 Oppure usa lo script: `./avvia_demo.command`
