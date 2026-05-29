@@ -383,6 +383,16 @@
       transition: background .15s;
     }
     .login-gate .gate-code-send:hover { background: #a3580f; }
+    .login-gate .gate-open-btn {
+      background: #1d4ed8; color: #fff;
+      border: none; border-radius: 10px;
+      padding: 12px 28px; cursor: pointer;
+      font-size: .95rem; font-weight: 700;
+      transition: background .15s, transform .1s;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .login-gate .gate-open-btn:hover { background: #2563eb; transform: scale(1.03); }
+    .login-gate .gate-open-btn:active { transform: scale(.98); }
   </style>
 </head>
 <body>
@@ -996,21 +1006,29 @@ function triggerGateSignIn(id) {
   document.getElementById('gate-progress-text').textContent =
     `Login agente ${PANEL_NAMES[id]} (${completedAuthCount + 1} di ${totalAuthCount})…`;
 
+  // Hide code input, show "open login" button for user click (avoids popup blocker)
   const codeWrap = document.getElementById('gate-code-wrap');
-  codeWrap.classList.add('active');
-  document.getElementById('gate-code-label').textContent =
-    `Copia il codice dal popup per ${PANEL_NAMES[id]} (Ctrl+C) e torna qui`;
-  const codeInput = document.getElementById('gate-code-input');
-  codeInput.value = '';
-  codeInput.focus();
+  codeWrap.classList.remove('active');
 
-  codeInput.onpaste = () => {
-    setTimeout(() => {
-      const code = codeInput.value.trim();
-      if (code && /^\d{4,8}$/.test(code)) submitGateCode();
-    }, 50);
+  // Show a button the user must click to open the popup (user gesture required)
+  const progressEl = document.getElementById('gate-progress');
+  let openBtn = document.getElementById('gate-open-btn');
+  if (!openBtn) {
+    openBtn = document.createElement('button');
+    openBtn.id = 'gate-open-btn';
+    openBtn.className = 'gate-open-btn';
+    progressEl.parentNode.insertBefore(openBtn, codeWrap);
+  }
+  openBtn.textContent = `🔑 Apri login per ${PANEL_NAMES[id]}`;
+  openBtn.style.display = '';
+  openBtn.onclick = function() {
+    openBtn.style.display = 'none';
+    doOpenSignInPopup(id, btn);
   };
+}
 
+function doOpenSignInPopup(id, btn) {
+  // This runs inside a user click handler, so popup won't be blocked
   const origOpen = window.open;
   let popup = null;
   window.open = function(...args) {
@@ -1024,6 +1042,23 @@ function triggerGateSignIn(id) {
 
   setTimeout(() => { window.open = origOpen; }, 200);
 
+  // Show code input
+  const codeWrap = document.getElementById('gate-code-wrap');
+  codeWrap.classList.add('active');
+  document.getElementById('gate-code-label').textContent =
+    `Copia il codice dal popup per ${PANEL_NAMES[id]} e incollalo qui`;
+  const codeInput = document.getElementById('gate-code-input');
+  codeInput.value = '';
+  codeInput.focus();
+
+  codeInput.onpaste = () => {
+    setTimeout(() => {
+      const code = codeInput.value.trim();
+      if (code && /^\d{4,8}$/.test(code)) submitGateCode();
+    }, 50);
+  };
+
+  // When popup closes, try clipboard auto-read
   if (popup) {
     const check = setInterval(() => {
       try {
@@ -1059,6 +1094,9 @@ function submitGateCode() {
   updateGateDots();
   currentAuthAgent = null;
 
+  // Hide code input before showing next agent's button
+  document.getElementById('gate-code-wrap').classList.remove('active');
+
   if (authQueue.length > 0) {
     const nextId = authQueue.shift();
     setTimeout(() => triggerGateSignIn(nextId), 600);
@@ -1071,6 +1109,8 @@ function checkGateComplete() {
   if (authQueue.length === 0 && !currentAuthAgent) {
     document.getElementById('gate-progress-text').textContent = '✅ Tutti gli agenti autenticati!';
     document.getElementById('gate-code-wrap').classList.remove('active');
+    const openBtn = document.getElementById('gate-open-btn');
+    if (openBtn) openBtn.style.display = 'none';
     const btn = document.getElementById('btn-signin');
     btn.textContent = '✅ Autenticato';
     btn.style.animation = '';
