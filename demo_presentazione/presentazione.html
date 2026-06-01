@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work IQ — Demo Comparativa</title>
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — REPLY TEMPLATE WHITE
+           =========================================== */
+        :root {
+            /* Backgrounds */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-dark: #1a1a1a;
+            --bg-overlay-50: rgba(255, 255, 255, 0.5);
+
+            /* Text */
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --text-on-dark: #ffffff;
+
+            /* Reply Brand Colors */
+            --accent-apple-green: #76b82a;
+            --accent-dark-green: #2d6a2e;
+            --accent-bright-green: #8cc63f;
+            --accent-vivid-blue: #0072ce;
+            --accent-deep-rose: #c4376b;
+            --accent-light-rose: #e8768a;
+            --accent-amber: #f5a623;
+            --accent-turquoise: #00b4d8;
+
+            /* Functional */
+            --bullet-color: var(--accent-bright-green);
+            --highlight-color: var(--accent-bright-green);
+
+            /* Typography */
+            --font-display: 'Arial Black', 'Arial Bold', sans-serif;
+            --font-body: Arial, Helvetica, sans-serif;
+
+            /* Spacing */
+            --slide-padding: clamp(2rem, 5vw, 4rem);
+
+            /* Animation */
+            --ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
+            --duration: 0.4s;
+        }
+
+        /* ===========================================
+           BASE STYLES
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        #progressBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent-apple-green);
+            z-index: 1000;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        /* ===========================================
+           NAVIGATION DOTS
+           =========================================== */
+        #navDots {
+            position: fixed;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 999;
+        }
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ccc;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+            padding: 0;
+        }
+        .nav-dot.active {
+            background: var(--accent-apple-green);
+            transform: scale(1.3);
+        }
+        .nav-dot:hover {
+            background: var(--accent-dark-green);
+        }
+
+        /* ===========================================
+           SLIDE COUNTER
+           =========================================== */
+        #slideCounter {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            z-index: 999;
+        }
+
+        /* ===========================================
+           SLIDE CONTAINER
+           =========================================== */
+        .slide {
+            min-height: 100vh;
+            padding: var(--slide-padding);
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ===========================================
+           ANIMATIONS — REVEAL ON SCROLL
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity var(--duration) var(--ease-out),
+                        transform var(--duration) var(--ease-out);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { transition: opacity 0.3s ease; transform: none; }
+        }
+
+        /* ===========================================
+           COVER SLIDE
+           =========================================== */
+        .slide-cover {
+            background: linear-gradient(135deg, var(--accent-dark-green) 0%, var(--accent-apple-green) 50%, var(--accent-bright-green) 100%);
+            justify-content: flex-end;
+            padding-bottom: 10vh;
+        }
+        .cover-content { max-width: 70%; }
+        .cover-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 3.75rem);
+            text-transform: uppercase;
+            color: var(--text-on-dark);
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+        .cover-subtitle {
+            font-family: var(--font-body);
+            font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+            color: rgba(255, 255, 255, 0.85);
+        }
+        .cover-date {
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.5rem;
+        }
+
+        /* ===========================================
+           AGENDA SLIDE
+           =========================================== */
+        .slide-agenda { background: var(--bg-primary); }
+        .slide-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            text-transform: uppercase;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .slide-subtitle {
+            font-family: var(--font-display);
+            font-size: clamp(0.75rem, 1.2vw, 1rem);
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .agenda-list {
+            list-style: none;
+            padding: 0;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .agenda-list li {
+            font-family: var(--font-body);
+            font-size: clamp(1rem, 1.5vw, 1.25rem);
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .agenda-number {
+            font-family: var(--font-display);
+            font-size: 1.5em;
+            color: var(--accent-apple-green);
+            min-width: 2rem;
+            text-align: center;
+        }
+
+        /* ===========================================
+           SECTION DIVIDER
+           =========================================== */
+        .slide-section {
+            background: var(--bg-primary);
+            text-align: center;
+            justify-content: center;
+        }
+        .section-phrase {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            text-transform: uppercase;
+            color: var(--accent-apple-green);
+        }
+        .section-impact {
+            font-family: var(--font-body);
+            font-size: clamp(1rem, 1.8vw, 1.5rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 1rem auto 0;
+            line-height: 1.5;
+        }
+
+        /* ===========================================
+           STATEMENT SLIDE
+           =========================================== */
+        .slide-statement {
+            text-align: center;
+            justify-content: center;
+            background: var(--bg-dark);
+        }
+        .statement-text {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 3.5vw, 3rem);
+            text-transform: uppercase;
+            line-height: 1.3;
+            color: var(--text-on-dark);
+        }
+        .statement-text .green { color: var(--accent-apple-green); }
+
+        /* ===========================================
+           SINGLE COLUMN TEXT
+           =========================================== */
+        .slide-text-single { background: var(--bg-primary); }
+        .text-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem 0;
+        }
+        .body-text {
+            font-family: var(--font-body);
+            font-size: clamp(0.875rem, 1.3vw, 1.125rem);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+        }
+        .text-evidence {
+            color: var(--highlight-color);
+            text-transform: uppercase;
+            font-family: var(--font-display);
+            font-size: clamp(0.8rem, 1.1vw, 0.95rem);
+            margin-bottom: 0.5rem;
+        }
+        .bullet-list {
+            list-style: none;
+            padding-left: 1.5em;
+        }
+        .bullet-list li {
+            font-family: var(--font-body);
+            font-size: clamp(0.875rem, 1.3vw, 1.125rem);
+            line-height: 1.6;
+            margin-bottom: 0.4rem;
+        }
+        .bullet-list li::before {
+            content: '▪';
+            color: var(--bullet-color);
+            font-size: 130%;
+            margin-left: -1.5em;
+            margin-right: 0.5em;
+        }
+
+        /* ===========================================
+           DOUBLE COLUMN TEXT
+           =========================================== */
+        .columns-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            padding: 1rem 0;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .columns-2 { grid-template-columns: 1fr; }
+        }
+        .column { }
+        .column-header {
+            font-family: var(--font-display);
+            font-size: clamp(0.85rem, 1.2vw, 1.05rem);
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Agent colors */
+        .agent-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.8rem;
+            height: 1.8rem;
+            border-radius: 50%;
+            color: white;
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+        .badge-red { background: #ef4444; }
+        .badge-yellow { background: #f59e0b; }
+        .badge-purple { background: #8b5cf6; }
+        .badge-green { background: var(--accent-apple-green); }
+
+        .response-box {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.2rem;
+            font-size: clamp(0.8rem, 1.1vw, 0.95rem);
+            line-height: 1.5;
+            color: var(--text-primary);
+            border-left: 3px solid #ccc;
+            margin-top: 0.5rem;
+        }
+        .response-box.red-border { border-left-color: #ef4444; }
+        .response-box.yellow-border { border-left-color: #f59e0b; }
+        .response-box.purple-border { border-left-color: #8b5cf6; }
+        .response-box.green-border { border-left-color: var(--accent-apple-green); }
+
+        .response-verdict {
+            margin-top: 0.75rem;
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        .verdict-fail { color: #ef4444; }
+        .verdict-partial { color: #f59e0b; }
+        .verdict-good { color: #8b5cf6; }
+        .verdict-great { color: var(--accent-apple-green); }
+
+        /* ===========================================
+           TABLE SLIDE
+           =========================================== */
+        .slide-table { background: var(--bg-primary); }
+        .reply-table {
+            width: 100%;
+            max-width: 950px;
+            margin: 1.5rem auto;
+            border-collapse: collapse;
+            font-family: var(--font-body);
+        }
+        .reply-table thead th {
+            background: var(--accent-apple-green);
+            color: white;
+            text-transform: uppercase;
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .reply-table tbody tr:nth-child(even) {
+            background: var(--bg-secondary);
+        }
+        .reply-table tbody td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.9rem;
+        }
+        .reply-table .emoji { font-size: 1.1rem; }
+
+        /* ===========================================
+           ACTION SLIDE (Prompt 3 highlight)
+           =========================================== */
+        .action-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 700px;
+            margin: 1rem auto;
+            border-left: 4px solid var(--accent-apple-green);
+        }
+        .action-card .email-to {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--accent-apple-green);
+            margin-bottom: 0.5rem;
+        }
+        .action-card .email-subject {
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        .action-card blockquote {
+            background: white;
+            border-left: 3px solid var(--accent-bright-green);
+            padding: 1rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+        .action-card .success-badge {
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #ecfdf5;
+            color: var(--accent-dark-green);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+        }
+
+        /* ===========================================
+           FOUR PILLARS GRID
+           =========================================== */
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            max-width: 1100px;
+            margin: 1.5rem auto;
+        }
+        @media (max-width: 768px) {
+            .pillars-grid { grid-template-columns: 1fr 1fr; }
+        }
+        .pillar-card {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            border-top: 3px solid #ccc;
+        }
+        .pillar-card.red { border-top-color: #ef4444; }
+        .pillar-card.yellow { border-top-color: #f59e0b; }
+        .pillar-card.purple { border-top-color: #8b5cf6; }
+        .pillar-card.green { border-top-color: var(--accent-apple-green); }
+
+        .pillar-card .pillar-number {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            color: var(--text-secondary);
+            opacity: 0.4;
+        }
+        .pillar-card .pillar-name {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin: 0.5rem 0;
+        }
+        .pillar-card .pillar-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .pillar-card .pillar-tools {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 0.75rem;
+            opacity: 0.7;
+        }
+
+        /* ===========================================
+           KEY MESSAGES
+           =========================================== */
+        .messages-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            max-width: 950px;
+            margin: 1.5rem auto;
+        }
+        @media (max-width: 768px) {
+            .messages-grid { grid-template-columns: 1fr; }
+        }
+        .msg-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+        .msg-card .msg-label {
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--accent-apple-green);
+            margin-bottom: 0.25rem;
+        }
+        .msg-card .msg-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+        .msg-card .msg-quote {
+            font-style: italic;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* ===========================================
+           THANK YOU SLIDE
+           =========================================== */
+        .slide-thankyou {
+            background: linear-gradient(135deg, var(--accent-dark-green), var(--accent-apple-green));
+            text-align: center;
+            justify-content: center;
+        }
+        .thankyou-text {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 6vw, 5rem);
+            color: var(--text-on-dark);
+            text-transform: uppercase;
+        }
+        .thankyou-url {
+            font-family: var(--font-body);
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 1rem;
+        }
+
+        /* ===========================================
+           RESPONSIVE
+           =========================================== */
+        @media (max-width: 768px) {
+            #navDots { display: none; }
+            .slide { padding: 1.5rem; }
+        }
+
+        /* ===========================================
+           PRINT SUPPORT
+           =========================================== */
+        @media print {
+            html { scroll-snap-type: none; }
+            .slide {
+                scroll-snap-align: unset;
+                page-break-after: always;
+                break-after: page;
+            }
+            #progressBar, #navDots, #slideCounter { display: none; }
+            .reveal { opacity: 1; transform: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Progress bar -->
+    <div id="progressBar"></div>
+
+    <!-- Navigation dots -->
+    <nav id="navDots" aria-label="Navigazione slide"></nav>
+
+    <!-- Slide counter -->
+    <div id="slideCounter">1 / 15</div>
+
+    <!-- ====================================================
+         SLIDE 1: COVER
+         ==================================================== -->
+    <section class="slide slide-cover">
+        <div class="cover-content">
+            <h1 class="cover-title reveal">WORK IQ<br>DEMO<br>COMPARATIVA</h1>
+            <p class="cover-subtitle reveal">4 livelli di intelligenza — Stesso prompt, risposte diverse</p>
+            <p class="cover-date reveal">1 Giugno 2026 · Copilot Studio + Work IQ MCP</p>
+        </div>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 2: AGENDA
+         ==================================================== -->
+    <section class="slide slide-agenda">
+        <h2 class="slide-title reveal">AGENDA</h2>
+        <ol class="agenda-list">
+            <li class="reveal"><span class="agenda-number">1</span> La sfida: perché un LLM generico non basta</li>
+            <li class="reveal"><span class="agenda-number">2</span> Setup: 4 agenti a confronto</li>
+            <li class="reveal"><span class="agenda-number">3</span> Prompt 1 — Preparazione alla riunione</li>
+            <li class="reveal"><span class="agenda-number">4</span> Prompt 2 — Riassunto email non lette</li>
+            <li class="reveal"><span class="agenda-number">5</span> Prompt 3 — Azione: invio email</li>
+            <li class="reveal"><span class="agenda-number">6</span> Riepilogo e messaggi chiave</li>
+        </ol>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 3: SECTION — LA SFIDA
+         ==================================================== -->
+    <section class="slide slide-section">
+        <h2 class="section-phrase reveal">LA SFIDA</h2>
+        <p class="section-impact reveal">Un modello linguistico senza contesto aziendale è come un consulente brillante che non ha mai visto i tuoi dati.</p>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 4: STATEMENT
+         ==================================================== -->
+    <section class="slide slide-statement">
+        <h2 class="statement-text reveal">SENZA CONTESTO,<br>L'AI <span class="green">NON SERVE</span><br>IN AZIENDA.</h2>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 5: SETUP — 4 LIVELLI
+         ==================================================== -->
+    <section class="slide slide-text-single">
+        <h2 class="slide-title reveal">I 4 LIVELLI DI INTELLIGENZA</h2>
+        <p class="slide-subtitle reveal">STESSO PROMPT, CAPACITÀ CRESCENTI</p>
+        <div class="pillars-grid">
+            <div class="pillar-card red reveal">
+                <div class="pillar-number">1</div>
+                <div class="pillar-name">Base</div>
+                <div class="pillar-desc">Solo LLM generico.<br>Nessun tool, nessun dato.</div>
+                <div class="pillar-tools">—</div>
+            </div>
+            <div class="pillar-card yellow reveal">
+                <div class="pillar-number">2</div>
+                <div class="pillar-name">Connessioni</div>
+                <div class="pillar-desc">Accesso diretto a dati Microsoft 365.</div>
+                <div class="pillar-tools">Mail · Calendar · User</div>
+            </div>
+            <div class="pillar-card purple reveal">
+                <div class="pillar-number">3</div>
+                <div class="pillar-name">Work IQ Copilot</div>
+                <div class="pillar-desc">Semantic Index: capisce il contesto nel tempo.</div>
+                <div class="pillar-tools">Semantic Index · Memory · Cross-app</div>
+            </div>
+            <div class="pillar-card green reveal">
+                <div class="pillar-number">4</div>
+                <div class="pillar-name">Completo</div>
+                <div class="pillar-desc">Intelligenza profonda + accesso diretto. Capisce e agisce.</div>
+                <div class="pillar-tools">Copilot + Mail + Calendar + User</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 6: SECTION — PROMPT 1
+         ==================================================== -->
+    <section class="slide slide-section">
+        <h2 class="section-phrase reveal">PROMPT 1</h2>
+        <p class="section-impact reveal">"Cosa devo sapere prima della mia prossima riunione?"</p>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 7: PROMPT 1 — AGENT 1 vs AGENT 2
+         ==================================================== -->
+    <section class="slide slide-text-double">
+        <h2 class="slide-title reveal">PROMPT 1 — RISPOSTE A CONFRONTO</h2>
+        <p class="slide-subtitle reveal">BASE vs CONNESSIONI</p>
+        <div class="columns-2">
+            <div class="column reveal">
+                <div class="column-header">
+                    <span class="agent-badge badge-red">1</span>
+                    Agente Base
+                </div>
+                <div class="response-box red-border">
+                    Non risultano informazioni specifiche sulla tua prossima riunione nei dati disponibili. Per offrirti un briefing completo, avrei bisogno di dettagli come l'orario, i partecipanti o l'argomento della riunione.
+                </div>
+                <p class="response-verdict verdict-fail">🔴 Educato ma inutile. Non sa nulla.</p>
+            </div>
+            <div class="column reveal">
+                <div class="column-header">
+                    <span class="agent-badge badge-yellow">2</span>
+                    Connessioni
+                </div>
+                <div class="response-box yellow-border">
+                    <strong>Horizon 3.0 - Stand up tecnico</strong><br>
+                    Oggi, 09:30 – 10:00 · Microsoft Teams<br>
+                    Organizzatore: Marco Bianchi<br>
+                    Partecipanti: Elena Rossi ✓, Luca Moretti, Sara Conti, Davide Rizzo (in attesa)<br>
+                    Tu: accettato provvisoriamente
+                </div>
+                <p class="response-verdict verdict-partial">🟡 Vede il calendario. Dati puntuali.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 8: PROMPT 1 — AGENT 3 vs AGENT 4
+         ==================================================== -->
+    <section class="slide slide-text-double">
+        <h2 class="slide-title reveal">PROMPT 1 — RISPOSTE A CONFRONTO</h2>
+        <p class="slide-subtitle reveal">WORK IQ COPILOT vs COMPLETO</p>
+        <div class="columns-2">
+            <div class="column reveal">
+                <div class="column-header">
+                    <span class="agent-badge badge-purple">3</span>
+                    Work IQ Copilot
+                </div>
+                <div class="response-box purple-border">
+                    📅 <strong>Meridian - Supply Chain Status - Weekly</strong><br>
+                    Domani 08:30 – 09:00 · Microsoft Teams<br>
+                    Organizzatore: Paolo Gentile<br><br>
+                    🧩 Meeting di stato settimanale su Meridian / Supply Chain Platform<br>
+                    🔍 Parte di un filone di meeting (Phoenix Stand-Up, Horizon SAL, Atlas Weekly) — preparati su rischi e dipendenze
+                </div>
+                <p class="response-verdict verdict-good">🟣 Analisi strutturata, contesto storico, suggerimenti proattivi</p>
+            </div>
+            <div class="column reveal">
+                <div class="column-header">
+                    <span class="agent-badge badge-green">4</span>
+                    Completo
+                </div>
+                <div class="response-box green-border">
+                    <strong>Horizon 3.0 - Stand up tecnico</strong><br>
+                    09:30 – 10:00 · Microsoft Teams<br>
+                    Organizzatore: Marco Bianchi<br>
+                    Elena Rossi ✓ · Luca, Sara, Davide (in attesa)<br>
+                    Tu: tentativo<br><br>
+                    💡 <em>Suggerimento: prepara aggiornamenti rapidi su attività Horizon 3.0 ed eventuali blocchi.</em>
+                </div>
+                <p class="response-verdict verdict-great">🟢 Dettagli operativi + stato RSVP + azioni concrete</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 9: SECTION — PROMPT 2
+         ==================================================== -->
+    <section class="slide slide-section">
+        <h2 class="section-phrase reveal">PROMPT 2</h2>
+        <p class="section-impact reveal">"Riassumi le email non lette più importanti di oggi."</p>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 10: PROMPT 2 — AGENT 1 vs AGENT 2
+         ==================================================== -->
+    <section class="slide slide-text-double">
+        <h2 class="slide-title reveal">PROMPT 2 — RISPOSTE A CONFRONTO</h2>
+        <p class="slide-subtitle reveal">BASE vs CONNESSIONI</p>
+        <div class="columns-2">
+            <div class="column reveal">
+                <div class="column-header">
+                    <span class="agent-badge badge-red">1</span>
+                    Agente Base
+                </div>
+                <div class="response-box red-border">
+                    Non risultano email non lette importanti ricevute oggi nei dati disponibili. Se hai bisogno di un riepilogo su un periodo diverso o su una categoria specifica di email, fammi sapere!
+                </div>
+                <p class="response-verdict verdict-fail">🔴 Nessun accesso alla mail</p>
+            </div>
+            <div class="column reveal">
+                <div class="column-header">
+                    <span class="agent-badge badge-yellow">2</span>
+                    Connessioni
+                </div>
+                <div class="response-box yellow-border">
+                    <strong>1.</strong> PR: fix_validation_pipeline into main (Azure DevOps)<br>
+                    <strong>2.</strong> Annullato: Sprint Review - Weekly Sync (Stefano Galli)<br>
+                    <strong>3.</strong> [API Gateway] Integrazione Meridian — kick-off tecnico (Francesca Colombo)<br>
+                    <strong>4.</strong> Analytics Dashboard [TEST] - Issue Report (errore critico)
+                </div>
+                <p class="response-verdict verdict-partial">🟡 Elenca email categorizzate. Non distingue le priorità.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 11: PROMPT 2 — AGENT 3 vs AGENT 4
+         ==================================================== -->
+    <section class="slide slide-text-double">
+        <h2 class="slide-title reveal">PROMPT 2 — RISPOSTE A CONFRONTO</h2>
+        <p class="slide-subtitle reveal">WORK IQ COPILOT vs COMPLETO</p>
+        <div class="columns-2">
+            <div class="column reveal">
+                <div class="column-header">
+                    <span class="agent-badge badge-purple">3</span>
+                    Work IQ Copilot
+                </div>
+                <div class="response-box purple-border">
+                    Non risultano email non lette di oggi.<br><br>
+                    Posso però:<br>
+                    ▪ Cercare nelle ultime <strong>24-48 ore</strong><br>
+                    ▪ Includere <strong>email già lette ma rilevanti</strong><br>
+                    ▪ Filtrare per <strong>mittenti chiave</strong> (team Phoenix, Marco, Chiara)
+                </div>
+                <p class="response-verdict verdict-good">🟣 Spiega il contesto, propone strategie alternative intelligenti</p>
+            </div>
+            <div class="column reveal">
+                <div class="column-header">
+                    <span class="agent-badge badge-green">4</span>
+                    Completo
+                </div>
+                <div class="response-box green-border">
+                    ▪ <strong>Roberto Neri</strong> (29 mag) — Invito riunione Teams<br>
+                    ▪ <strong>Deskbooking</strong> (29 mag) — Check-in Reminder ×2<br>
+                    ▪ <strong>Microsoft Outlook</strong> (28 mag) — Non recapitabile: Follow-up con Sofia Marchetti ×2<br><br>
+                    <em>Vuoi che approfondisca per estrarre azioni?</em>
+                </div>
+                <p class="response-verdict verdict-great">🟢 Email filtrate con data, anteprima e azioni di follow-up</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 12: SECTION — PROMPT 3
+         ==================================================== -->
+    <section class="slide slide-section">
+        <h2 class="section-phrase reveal">PROMPT 3</h2>
+        <p class="section-impact reveal">"Manda una email a s.marchetti@novatech.it: digli che ho visto le sue domande sul progetto e ne parliamo alla prossima riunione."</p>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 13: PROMPT 3 — AZIONE COMPLETATA
+         ==================================================== -->
+    <section class="slide slide-text-single">
+        <h2 class="slide-title reveal">AGENTE 4 — AZIONE COMPLETATA</h2>
+        <p class="slide-subtitle reveal">CAPIRE + AGIRE = VALORE REALE</p>
+        <div class="action-card reveal">
+            <div class="email-to">📨 A: s.marchetti@novatech.it</div>
+            <div class="email-subject">Oggetto: "Discussione delle domande sul progetto"</div>
+            <blockquote>
+                Ciao Sofia,<br>
+                ho visto le tue domande sul progetto.<br>
+                Ne parleremo nella prossima riunione.
+            </blockquote>
+            <div class="success-badge">✅ Email inviata con successo</div>
+        </div>
+        <div class="text-content reveal" style="text-align: center; margin-top: 1rem;">
+            <p class="body-text" style="color: var(--text-secondary);">L'agente ha compreso il contesto dalla conversazione, formulato un messaggio appropriato e inviato l'email — tutto in un unico passaggio.</p>
+        </div>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 14: TABELLA COMPARATIVA
+         ==================================================== -->
+    <section class="slide slide-table">
+        <h2 class="slide-title reveal">RIEPILOGO COMPARATIVO</h2>
+        <p class="slide-subtitle reveal">CAPIRE · AGIRE · FONTI</p>
+        <table class="reply-table reveal">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Livello</th>
+                    <th>Capisce</th>
+                    <th>Agisce</th>
+                    <th>Fonti dati</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="emoji">🔴</span></td>
+                    <td><strong>Base</strong></td>
+                    <td>❌</td>
+                    <td>❌</td>
+                    <td>Nessuna</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">🟡</span></td>
+                    <td><strong>Connessioni</strong></td>
+                    <td>Parziale</td>
+                    <td>✅</td>
+                    <td>Mail, Calendar, User</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">🟣</span></td>
+                    <td><strong>Work IQ Copilot</strong></td>
+                    <td>✅✅</td>
+                    <td>❌</td>
+                    <td>Semantic Index, Memory, M365</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">🟢</span></td>
+                    <td><strong>Completo</strong></td>
+                    <td>✅✅</td>
+                    <td>✅</td>
+                    <td>Tutto</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 15: MESSAGGI CHIAVE
+         ==================================================== -->
+    <section class="slide slide-text-single">
+        <h2 class="slide-title reveal">MESSAGGI CHIAVE</h2>
+        <div class="messages-grid">
+            <div class="msg-card reveal">
+                <div class="msg-label">Senza contesto</div>
+                <div class="msg-text">Un LLM generico non serve in azienda. È intelligente ma cieco.</div>
+                <div class="msg-quote">"Non risultano informazioni…"</div>
+            </div>
+            <div class="msg-card reveal">
+                <div class="msg-label">Connessioni</div>
+                <div class="msg-text">Con le API vede le tue app e fa cose. Ma cerca per keyword, non capisce il contesto.</div>
+                <div class="msg-quote">"Ecco i dettagli della tua riunione"</div>
+            </div>
+            <div class="msg-card reveal">
+                <div class="msg-label">Semantic Index</div>
+                <div class="msg-text">Il semantic index connette i puntini nel tempo. Analisi strutturata e proattiva.</div>
+                <div class="msg-quote">"Preparati su rischi e dipendenze"</div>
+            </div>
+            <div class="msg-card reveal">
+                <div class="msg-label">Completo</div>
+                <div class="msg-text">Capire + Agire = valore reale. Ha inviato l'email.</div>
+                <div class="msg-quote">"Email inviata con successo ✅"</div>
+            </div>
+            <div class="msg-card reveal">
+                <div class="msg-label">Governance</div>
+                <div class="msg-text">Ogni tool è controllabile dall'admin center. Ogni chiamata è tracciabile.</div>
+            </div>
+            <div class="msg-card reveal">
+                <div class="msg-label">MCP Standard</div>
+                <div class="msg-text">Domani aggiungi SharePoint, Dynamics, i tuoi sistemi custom. Protocollo aperto.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================
+         SLIDE 16: THANK YOU
+         ==================================================== -->
+    <section class="slide slide-thankyou">
+        <h2 class="thankyou-text reveal">THANK YOU</h2>
+        <p class="thankyou-url reveal">www.reply.com</p>
+    </section>
+
+    <!-- ====================================================
+       JAVASCRIPT — PRESENTATION CONTROLLER
+       ==================================================== -->
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CLASS
+           Handles navigation, animations, dots, progress
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = Array.from(document.querySelectorAll('.slide'));
+                this.currentSlide = 0;
+                this.totalSlides = this.slides.length;
+                this.isScrolling = false;
+
+                this.initNavDots();
+                this.initObserver();
+                this.initKeyboard();
+                this.initTouch();
+                this.initWheel();
+                this.updateCounter();
+            }
+
+            /* --- Navigation Dots --- */
+            initNavDots() {
+                const nav = document.getElementById('navDots');
+                this.slides.forEach((_, i) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+                    dot.setAttribute('aria-label', `Slide ${i + 1}`);
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    nav.appendChild(dot);
+                });
+                this.dots = Array.from(nav.querySelectorAll('.nav-dot'));
+            }
+
+            /* --- Intersection Observer for reveal animations --- */
+            initObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = this.slides.indexOf(entry.target);
+                            if (idx !== -1) {
+                                this.currentSlide = idx;
+                                this.updateUI();
+                            }
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                this.slides.forEach(s => observer.observe(s));
+            }
+
+            /* --- Keyboard navigation --- */
+            initKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+                        e.preventDefault();
+                        this.next();
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        this.prev();
+                    }
+                });
+            }
+
+            /* --- Touch/swipe support --- */
+            initTouch() {
+                let startY = 0;
+                document.addEventListener('touchstart', (e) => {
+                    startY = e.touches[0].clientY;
+                }, { passive: true });
+                document.addEventListener('touchend', (e) => {
+                    const diff = startY - e.changedTouches[0].clientY;
+                    if (Math.abs(diff) > 50) {
+                        diff > 0 ? this.next() : this.prev();
+                    }
+                }, { passive: true });
+            }
+
+            /* --- Mouse wheel --- */
+            initWheel() {
+                let timeout;
+                document.addEventListener('wheel', (e) => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        if (e.deltaY > 30) this.next();
+                        else if (e.deltaY < -30) this.prev();
+                    }, 60);
+                }, { passive: true });
+            }
+
+            /* --- Navigation methods --- */
+            goToSlide(index) {
+                if (index < 0 || index >= this.totalSlides) return;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                this.currentSlide = index;
+                this.updateUI();
+            }
+
+            next() { this.goToSlide(this.currentSlide + 1); }
+            prev() { this.goToSlide(this.currentSlide - 1); }
+
+            /* --- UI updates --- */
+            updateUI() {
+                this.updateDots();
+                this.updateProgress();
+                this.updateCounter();
+            }
+
+            updateDots() {
+                this.dots.forEach((d, i) => {
+                    d.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+
+            updateProgress() {
+                const pct = ((this.currentSlide + 1) / this.totalSlides) * 100;
+                document.getElementById('progressBar').style.width = pct + '%';
+            }
+
+            updateCounter() {
+                document.getElementById('slideCounter').textContent =
+                    `${this.currentSlide + 1} / ${this.totalSlides}`;
+            }
+        }
+
+        /* Initialize on DOM ready */
+        document.addEventListener('DOMContentLoaded', () => {
+            new SlidePresentation();
+        });
+    </script>
+</body>
+</html>

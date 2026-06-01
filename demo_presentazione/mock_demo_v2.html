@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Work IQ — Demo Comparativa</title>
+  <style>
+    :root {
+      --bg: #080f1c;
+      --surface: #0d1625;
+      --surface2: #111e30;
+      --border: #1e2f45;
+      --text: #e6edf7;
+      --muted: #7a8fa8;
+      --c1: #f87171; --c1s: rgba(248,113,113,.12);
+      --c2: #fbbf24; --c2s: rgba(251,191,36,.12);
+      --c3: #a78bfa; --c3s: rgba(167,139,250,.12);
+      --c4: #34d399; --c4s: rgba(52,211,153,.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex; flex-direction: column;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex; align-items: center; gap: 1rem;
+      padding: .6rem 1.2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .topbar .logo { font-weight: 700; font-size: .95rem; color: #60a5fa; }
+    .topbar .subtitle { font-size: .78rem; color: var(--muted); }
+    .topbar .spacer { flex: 1; }
+    .btn-config {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 5px 14px; border-radius: 6px;
+      font-size: .8rem; cursor: pointer;
+    }
+
+    /* ── BROADCAST BAR ── */
+    .broadcast {
+      display: flex; gap: .6rem; align-items: center;
+      padding: .55rem 1.2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .broadcast label {
+      font-size: .75rem; color: var(--muted);
+      white-space: nowrap; font-weight: 600;
+    }
+    .broadcast input {
+      flex: 1; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px;
+      padding: 7px 12px; font-size: .88rem; font-family: inherit; outline: none;
+    }
+    .broadcast input::placeholder { color: var(--muted); }
+    .btn-send {
+      background: #1d4ed8; color: #fff;
+      border: none; border-radius: 8px;
+      padding: 7px 18px; font-size: .88rem; font-weight: 600;
+      white-space: nowrap; cursor: pointer;
+    }
+
+    /* ── QUICK PROMPTS ── */
+    .quick-prompts {
+      display: flex; gap: .4rem; align-items: center;
+      padding: .35rem 1.2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .quick-prompts span {
+      font-size: .7rem; color: var(--muted);
+      white-space: nowrap; margin-right: .2rem;
+    }
+    .qp {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 999px;
+      padding: 3px 12px; font-size: .73rem; white-space: nowrap; cursor: pointer;
+    }
+
+    /* ── PANELS GRID ── */
+    .panels {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      grid-template-rows: 1fr;
+      gap: 6px; padding: 6px;
+      overflow: hidden;
+    }
+    .panel {
+      display: flex; flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    /* ── PANEL HEADER ── */
+    .panel-header {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .5rem .85rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .panel-num {
+      width: 22px; height: 22px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .72rem; font-weight: 800; flex-shrink: 0;
+    }
+    .p1 .panel-num { background: var(--c1s); color: var(--c1); }
+    .p2 .panel-num { background: var(--c2s); color: var(--c2); }
+    .p3 .panel-num { background: var(--c3s); color: var(--c3); }
+    .p4 .panel-num { background: var(--c4s); color: var(--c4); }
+    .panel-info { flex: 1; min-width: 0; }
+    .panel-title { font-size: .82rem; font-weight: 700; }
+    .panel-sub { font-size: .72rem; color: var(--muted); }
+    .panel-status {
+      margin-left: auto;
+      font-size: .68rem; padding: 2px 8px; border-radius: 999px;
+      font-weight: 600; flex-shrink: 0;
+    }
+    .status-ok { background: var(--c4s); color: var(--c4); }
+
+    /* ── PANEL BODY (chat area) ── */
+    .panel-body {
+      flex: 1; overflow-y: auto; padding: .75rem;
+      display: flex; flex-direction: column; gap: .6rem;
+    }
+
+    /* ── CHAT MESSAGES ── */
+    .msg {
+      max-width: 88%;
+      border-radius: 12px;
+      padding: .65rem .9rem;
+      font-size: .82rem;
+      line-height: 1.5;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    .msg-user {
+      align-self: flex-end;
+      background: #1d4ed8;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .msg-bot {
+      align-self: flex-start;
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    /* Bot message internal structure */
+    .msg-bot p { margin: 0 0 .4rem 0; }
+    .msg-bot p:last-child { margin-bottom: 0; }
+    .msg-bot .section-title {
+      font-weight: 700;
+      color: #93c5fd;
+      margin-top: .5rem;
+      margin-bottom: .15rem;
+      font-size: .83rem;
+    }
+    .msg-bot .section-title:first-child { margin-top: 0; }
+    .msg-bot ul {
+      margin: .2rem 0 .4rem .2rem;
+      padding-left: 1rem;
+      list-style: none;
+    }
+    .msg-bot ul li { margin-bottom: .15rem; position: relative; }
+    .msg-bot ul li::before { content: "•"; position: absolute; left: -.9rem; color: var(--muted); }
+    .msg-bot .kv { display: flex; gap: .3rem; margin-bottom: .1rem; }
+    .msg-bot .kv .label { font-weight: 700; color: #93c5fd; white-space: nowrap; }
+    .msg-bot .kv .value { color: var(--text); }
+    .msg-bot .hint {
+      font-style: italic; color: var(--muted);
+      margin-top: .5rem; font-size: .78rem;
+    }
+    .msg-bot .emoji-section {
+      margin-top: .5rem;
+    }
+    .msg-bot .emoji-section:first-child { margin-top: 0; }
+
+    .msg-time {
+      font-size: .6rem; color: var(--muted); margin-top: .3rem;
+    }
+    .msg-user .msg-time { text-align: right; }
+    .msg-bot .msg-time { text-align: left; }
+
+    .msg-greeting {
+      align-self: flex-start;
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      border-bottom-left-radius: 4px;
+      padding: .55rem .8rem;
+      font-size: .82rem;
+    }
+
+    /* Quote block for email body */
+    .msg-quote {
+      border-left: 3px solid var(--c4);
+      padding: .4rem .6rem;
+      margin: .4rem 0;
+      background: rgba(52,211,153,.06);
+      border-radius: 0 6px 6px 0;
+      font-size: .8rem;
+      line-height: 1.5;
+    }
+
+    .success-tag {
+      display: inline-block;
+      background: rgba(52,211,153,.15);
+      color: var(--c4);
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: .75rem;
+      font-weight: 600;
+      margin-top: .3rem;
+    }
+
+    /* ── CHAT INPUT ── */
+    .chat-input {
+      display: flex; gap: .4rem; padding: .4rem .6rem;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .chat-input input {
+      flex: 1; background: var(--bg); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 6px; padding: 5px 8px;
+      font-size: .75rem; font-family: inherit; outline: none;
+    }
+    .chat-input button {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 6px; padding: 4px 10px;
+      font-size: .75rem; cursor: pointer;
+    }
+
+    /* ── STATE TOGGLE ── */
+    .prompt-msg { display: none !important; }
+    body.show-p1 .prompt-msg.p1 { display: block !important; }
+    body.show-p2 .prompt-msg.p1,
+    body.show-p2 .prompt-msg.p2 { display: block !important; }
+    body.show-p3 .prompt-msg.p1,
+    body.show-p3 .prompt-msg.p2,
+    body.show-p3 .prompt-msg.p3 { display: block !important; }
+
+    /* Email list items */
+    .email-item {
+      padding: .3rem 0;
+      border-bottom: 1px solid rgba(30,47,69,.5);
+    }
+    .email-item:last-child { border-bottom: none; }
+    .email-item .sender { font-weight: 700; color: #93c5fd; }
+    .email-item .date { color: var(--muted); font-size: .75rem; }
+    .email-item .subject { margin-top: .1rem; }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo">⚡ Work IQ</div>
+    <div class="subtitle">Demo comparativa — 4 livelli di intelligenza</div>
+    <div class="spacer"></div>
+    <button class="btn-config">🔐 Accedi a tutti</button>
+    <button class="btn-config">🔄 Reset tutti</button>
+    <button class="btn-config">⚙ Configura agenti</button>
+  </div>
+
+  <!-- BROADCAST BAR -->
+  <div class="broadcast">
+    <label>Invia a tutti →</label>
+    <input type="text" placeholder="Scrivi un prompt e premi Invia — tutti e 4 gli agenti risponderanno…"/>
+    <button class="btn-send">Invia a tutti ▶</button>
+  </div>
+
+  <!-- QUICK PROMPTS -->
+  <div class="quick-prompts">
+    <span>Prompt rapidi:</span>
+    <button class="qp">📅 Prossima riunione</button>
+    <button class="qp">👥 Partecipanti &amp; email</button>
+    <button class="qp">⚠ Conflitti agenda</button>
+    <button class="qp">📧 Email importanti</button>
+    <button class="qp">➕ Crea evento</button>
+  </div>
+
+  <!-- ============= PANELS ============= -->
+  <div class="panels">
+
+    <!-- ────────── PANEL 1: BASE ────────── -->
+    <div class="panel p1" id="panel-1">
+      <div class="panel-header">
+        <div class="panel-num">1</div>
+        <div class="panel-info">
+          <div class="panel-title">Base</div>
+          <div class="panel-sub">Solo LLM · nessun tool</div>
+        </div>
+        <div class="panel-status status-ok">Connesso</div>
+      </div>
+      <div class="panel-body" id="body-1">
+        <div class="msg-greeting">Ciao! Come posso aiutarti oggi? 😊</div>
+
+        <!-- P1 -->
+        <div class="msg msg-user prompt-msg p1">Cosa devo sapere prima della mia prossima riunione?</div>
+        <div class="msg msg-bot prompt-msg p1">
+          <p>Non risultano informazioni specifiche sulla tua prossima riunione nei dati disponibili.</p>
+          <p>Per offrirti un briefing completo, avrei bisogno di dettagli come l'orario, i partecipanti o l'argomento della riunione.</p>
+          <p class="hint">Se vuoi, puoi fornirmi queste informazioni oppure chiedere un riepilogo su una riunione specifica.</p>
+          <div class="msg-time">10:19 AM</div>
+        </div>
+
+        <!-- P2 -->
+        <div class="msg msg-user prompt-msg p2">Riassumi le email non lette più importanti di oggi.</div>
+        <div class="msg msg-bot prompt-msg p2">
+          <p>Non risultano email non lette importanti ricevute oggi nei dati disponibili.</p>
+          <p class="hint">Se hai bisogno di un riepilogo su un periodo diverso o su una categoria specifica di email, fammi sapere!</p>
+          <div class="msg-time">10:21 AM</div>
+        </div>
+      </div>
+      <div class="chat-input">
+        <input type="text" placeholder="Digita il tuo messaggio"/>
+        <button>Invia</button>
+      </div>
+    </div>
+
+    <!-- ────────── PANEL 2: CONNESSIONI ────────── -->
+    <div class="panel p2" id="panel-2">
+      <div class="panel-header">
+        <div class="panel-num">2</div>
+        <div class="panel-info">
+          <div class="panel-title">Connessioni</div>
+          <div class="panel-sub">Mail · Calendar · User</div>
+        </div>
+        <div class="panel-status status-ok">Autenticato</div>
+      </div>
+      <div class="panel-body" id="body-2">
+        <div class="msg-greeting">Ciao! 😊 Come posso aiutarti oggi?</div>
+
+        <!-- P1 -->
+        <div class="msg msg-user prompt-msg p1">Cosa devo sapere prima della mia prossima riunione?</div>
+        <div class="msg msg-bot prompt-msg p1">
+          <p>Ecco i dettagli della tua prossima riunione:</p>
+          <div class="kv"><span class="label">Titolo:</span><span class="value">Horizon 3.0 - Stand up tecnico</span></div>
+          <div class="kv"><span class="label">Orario:</span><span class="value">Oggi, 09:30 - 10:00</span></div>
+          <div class="kv"><span class="label">Organizzatore:</span><span class="value">Marco Bianchi</span></div>
+          <div class="kv"><span class="label">Luogo:</span><span class="value">Microsoft Teams (online)</span></div>
+          <p class="section-title">Partecipanti:</p>
+          <ul>
+            <li>Marco Bianchi – Organizzatore</li>
+            <li>Elena Rossi – Ha accettato</li>
+            <li>Luca Moretti, Davide Rizzo, Sara Conti – In attesa</li>
+            <li>Tu – Accettato provvisoriamente</li>
+          </ul>
+          <p class="hint">Vuoi che estragga anche le azioni dal meeting precedente?</p>
+          <div class="msg-time">10:19 AM</div>
+        </div>
+
+        <!-- P2 -->
+        <div class="msg msg-user prompt-msg p2">Riassumi le email non lette più importanti di oggi.</div>
+        <div class="msg msg-bot prompt-msg p2">
+          <p>Ecco una sintesi delle email non lette più rilevanti:</p>
+          <p class="section-title">1. Pull Request su Azure DevOps</p>
+          <ul>
+            <li>PR: fix_validation_pipeline into main</li>
+            <li>Da: Azure DevOps (Giorgio Barbieri)</li>
+          </ul>
+          <p class="section-title">2. Riunioni</p>
+          <ul>
+            <li>Annullato: Sprint Review - Weekly Sync</li>
+            <li>Da: Stefano Galli</li>
+          </ul>
+          <p class="section-title">3. Kick-off tecnico</p>
+          <ul>
+            <li>[API Gateway] Integrazione Meridian</li>
+            <li>Da: Francesca Colombo</li>
+          </ul>
+          <p class="section-title">4. Analytics Dashboard [TEST]</p>
+          <ul>
+            <li>Issue Report — errore critico pipeline</li>
+          </ul>
+          <div class="msg-time">10:21 AM</div>
+        </div>
+      </div>
+      <div class="chat-input">
+        <input type="text" placeholder="Digita il tuo messaggio"/>
+        <button>Invia</button>
+      </div>
+    </div>
+
+    <!-- ────────── PANEL 3: WORK IQ COPILOT ────────── -->
+    <div class="panel p3" id="panel-3">
+      <div class="panel-header">
+        <div class="panel-num">3</div>
+        <div class="panel-info">
+          <div class="panel-title">Work IQ Copilot</div>
+          <div class="panel-sub">Semantic index · Memory · Cross-app</div>
+        </div>
+        <div class="panel-status status-ok">Autenticato</div>
+      </div>
+      <div class="panel-body" id="body-3">
+
+        <!-- P1 -->
+        <div class="msg msg-user prompt-msg p1">Cosa devo sapere prima della mia prossima riunione?</div>
+        <div class="msg msg-bot prompt-msg p1">
+          <p class="hint" style="margin-top:0">Controllo subito il tuo calendario per vedere i dettagli della tua prossima riunione...</p>
+          <div class="msg-time">10:19 AM</div>
+        </div>
+        <div class="msg msg-bot prompt-msg p1">
+          <p>Ecco cosa devi sapere per la tua <strong style="color:#93c5fd">prossima riunione</strong>:</p>
+
+          <div class="emoji-section">
+            <p class="section-title">📅 Meridian - Supply Chain Status - Weekly</p>
+            <ul>
+              <li>Quando: domani, ore 08:30 – 09:00</li>
+              <li>Durata: 30 minuti</li>
+              <li>Modalità: Microsoft Teams</li>
+              <li>Organizzatore: Paolo Gentile</li>
+              <li>Ricorrenza: settimanale</li>
+            </ul>
+          </div>
+
+          <div class="emoji-section">
+            <p class="section-title">👥 Partecipanti</p>
+            <ul>
+              <li>Andrea Ferri (tu)</li>
+              <li>Chiara Marino</li>
+            </ul>
+          </div>
+
+          <div class="emoji-section">
+            <p class="section-title">🧩 Contesto e temi</p>
+            <ul>
+              <li>Meeting di stato settimanale su <strong style="color:#93c5fd">Meridian / Supply Chain Platform</strong></li>
+              <li>Probabilmente aggiornamenti, issue e next steps</li>
+              <li>Set ristretto di partecipanti → operativo/coordinamento</li>
+            </ul>
+          </div>
+
+          <div class="emoji-section">
+            <p class="section-title">🔍 Spunti utili</p>
+            <ul>
+              <li>Parte di un filone (Phoenix Stand-Up, Horizon SAL, Atlas Weekly) — preparati su <strong style="color:#93c5fd">rischi e dipendenze</strong></li>
+              <li>Porta update puntuali su <strong style="color:#93c5fd">avanzamento/criticità</strong></li>
+            </ul>
+          </div>
+
+          <p class="hint">Vuoi un briefing operativo con ✅ punti da citare, ⚠ rischi aperti e ❓domande da porre?</p>
+          <div class="msg-time">10:20 AM</div>
+        </div>
+
+        <!-- P2 -->
+        <div class="msg msg-user prompt-msg p2">Riassumi le email non lette più importanti di oggi.</div>
+        <div class="msg msg-bot prompt-msg p2">
+          <p>Non risultano email non lette di oggi nei dati disponibili.</p>
+          <p>Questo può voler dire che:</p>
+          <ul>
+            <li>Non hai ricevuto nuove email non lette oggi</li>
+            <li>Le email non sono indicizzate al momento</li>
+          </ul>
+          <p>Posso però:</p>
+          <ul>
+            <li>Cercare nelle ultime <strong style="color:#93c5fd">24-48 ore</strong></li>
+            <li>Includere <strong style="color:#93c5fd">email già lette ma rilevanti</strong></li>
+            <li>Filtrare per <strong style="color:#93c5fd">mittenti chiave</strong> (team Phoenix, Marco, Chiara)</li>
+          </ul>
+          <p class="hint">Quale opzione preferisci?</p>
+          <div class="msg-time">10:22 AM</div>
+        </div>
+      </div>
+      <div class="chat-input">
+        <input type="text" placeholder="Digita il tuo messaggio"/>
+        <button>Invia</button>
+      </div>
+    </div>
+
+    <!-- ────────── PANEL 4: COMPLETO ────────── -->
+    <div class="panel p4" id="panel-4">
+      <div class="panel-header">
+        <div class="panel-num">4</div>
+        <div class="panel-info">
+          <div class="panel-title">Completo</div>
+          <div class="panel-sub">Copilot + Mail + Calendar + User</div>
+        </div>
+        <div class="panel-status status-ok">Autenticato</div>
+      </div>
+      <div class="panel-body" id="body-4">
+        <div class="msg-greeting">Ciao, come posso aiutarti oggi?</div>
+
+        <!-- P1 -->
+        <div class="msg msg-user prompt-msg p1">Cosa devo sapere prima della mia prossima riunione?</div>
+        <div class="msg msg-bot prompt-msg p1">
+          <p>Ecco i dettagli della tua prossima riunione:</p>
+          <div class="kv"><span class="label">Titolo:</span><span class="value">Horizon 3.0 - Stand up tecnico</span></div>
+          <div class="kv"><span class="label">Orario:</span><span class="value">09:30 – 10:00 (ora locale)</span></div>
+          <div class="kv"><span class="label">Modalità:</span><span class="value">Microsoft Teams</span></div>
+          <div class="kv"><span class="label">Organizzatore:</span><span class="value">Marco Bianchi</span></div>
+          <p class="section-title">Partecipanti chiave:</p>
+          <ul>
+            <li>Elena Rossi (ha accettato)</li>
+            <li>Luca Moretti, Sara Conti, Davide Rizzo (non hanno ancora risposto)</li>
+            <li>Tu: risposta provvisoria (tentativa)</li>
+          </ul>
+          <p>Non è indicata un'agenda dettagliata, solo il link Teams.</p>
+          <p>💡 <em style="color:var(--muted)">Suggerimento: trattandosi di uno stand up tecnico, prepara aggiornamenti rapidi su attività Horizon 3.0 ed eventuali blocchi.</em></p>
+          <p class="hint">Vuoi che verifichi azioni aperte o note dalle riunioni precedenti?</p>
+          <div class="msg-time">10:19 AM</div>
+        </div>
+
+        <!-- P2 -->
+        <div class="msg msg-user prompt-msg p2">Riassumi le email non lette più importanti di oggi.</div>
+        <div class="msg msg-bot prompt-msg p2">
+          <p>Ecco le email non lette più recenti e rilevanti (ultimi giorni):</p>
+
+          <div class="email-item">
+            <span class="sender">Roberto Neri</span> <span class="date">(29 mag, 10:13)</span>
+            <div class="subject">Invito a riunione Teams con dettagli di connessione</div>
+          </div>
+          <div class="email-item">
+            <span class="sender">Deskbooking-NoReply</span> <span class="date">(29 mag, 07:30)</span>
+            <div class="subject">Check-in Reminder – prenotazione scrivania</div>
+          </div>
+          <div class="email-item">
+            <span class="sender">Deskbooking-NoReply</span> <span class="date">(29 mag, 07:01)</span>
+            <div class="subject">Check-in Reminder – promemoria desk</div>
+          </div>
+          <div class="email-item">
+            <span class="sender">Microsoft Outlook</span> <span class="date">(28 mag, 15:14)</span>
+            <div class="subject">Non recapitabile: Follow-up con Sofia Marchetti</div>
+          </div>
+          <div class="email-item">
+            <span class="sender">Microsoft Outlook</span> <span class="date">(28 mag, 15:12)</span>
+            <div class="subject">Non recapitabile: Follow-up con Sofia Marchetti</div>
+          </div>
+
+          <p class="hint">Vuoi che approfondisca per estrarre azioni?</p>
+          <div class="msg-time">10:21 AM</div>
+        </div>
+
+        <!-- P3: email action -->
+        <div class="msg msg-user prompt-msg p3">Manda una email a s.marchetti@novatech.it: digli che ho visto le sue domande sul progetto e ne parliamo alla prossima riunione.</div>
+        <div class="msg msg-bot prompt-msg p3">
+          <p>Ho inviato l'email a <strong style="color:#93c5fd">s.marchetti@novatech.it</strong> con oggetto <em style="color:var(--muted)">"Discussione delle domande sul progetto"</em> e il messaggio:</p>
+          <div class="msg-quote">
+            Ciao Sofia,<br>
+            ho visto le tue domande sul progetto.<br>
+            Ne parleremo nella prossima riunione.
+          </div>
+          <span class="success-tag">✅ Email inviata con successo</span>
+          <div class="msg-time">10:22 AM</div>
+        </div>
+      </div>
+      <div class="chat-input">
+        <input type="text" placeholder="Digita il tuo messaggio"/>
+        <button>Invia</button>
+      </div>
+    </div>
+
+  </div><!-- /panels -->
+
+  <script>
+    function scrollAllToBottom() {
+      for (let i = 1; i <= 4; i++) {
+        const body = document.getElementById('body-' + i);
+        if (body) body.scrollTop = body.scrollHeight;
+      }
+    }
+    function setState(state) {
+      document.body.className = state;
+      setTimeout(scrollAllToBottom, 50);
+    }
+  </script>
+</body>
+</html>

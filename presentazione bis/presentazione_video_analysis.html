@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Request Tracker — Demo Video Analysis</title>
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — REPLY TEMPLATE WHITE
+           =========================================== */
+        :root {
+            /* Backgrounds */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-dark: #1a1a1a;
+
+            /* Text */
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --text-on-dark: #ffffff;
+
+            /* Reply Brand Colors */
+            --accent-apple-green: #76b82a;
+            --accent-dark-green: #2d6a2e;
+            --accent-bright-green: #8cc63f;
+            --accent-vivid-blue: #0072ce;
+            --accent-deep-rose: #c4376b;
+            --accent-amber: #f5a623;
+            --accent-turquoise: #00b4d8;
+
+            /* Functional */
+            --bullet-color: var(--accent-bright-green);
+            --highlight-color: var(--accent-bright-green);
+
+            /* Typography */
+            --font-display: 'Arial Black', 'Arial Bold', sans-serif;
+            --font-body: Arial, Helvetica, sans-serif;
+
+            /* Spacing */
+            --slide-padding: clamp(2rem, 5vw, 4rem);
+
+            /* Animation */
+            --ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
+            --duration-normal: 0.4s;
+        }
+
+        /* ===========================================
+           BASE STYLES
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* ===========================================
+           SLIDE CONTAINER
+           =========================================== */
+        .slide {
+            min-height: 100vh;
+            padding: var(--slide-padding);
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ===========================================
+           ANIMATIONS — subtle, professional
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity var(--duration-normal) var(--ease-out),
+                        transform var(--duration-normal) var(--ease-out);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { transition: opacity 0.3s ease; transform: none; }
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        #progressBar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            background: var(--accent-apple-green);
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAV DOTS
+           =========================================== */
+        #navDots {
+            position: fixed;
+            right: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+        .nav-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: #ccc;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+            padding: 0;
+        }
+        .nav-dot.active {
+            background: var(--accent-apple-green);
+            transform: scale(1.3);
+        }
+        .nav-dot:hover { background: var(--accent-dark-green); }
+
+        /* ===========================================
+           SLIDE COUNTER
+           =========================================== */
+        #slideCounter {
+            position: fixed;
+            bottom: 1rem; right: 1.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            z-index: 1000;
+            font-family: var(--font-body);
+        }
+
+        /* ===========================================
+           COVER SLIDE
+           =========================================== */
+        .slide-cover {
+            background: linear-gradient(135deg, var(--accent-dark-green) 0%, var(--accent-apple-green) 50%, var(--accent-bright-green) 100%);
+            justify-content: flex-end;
+            padding-bottom: 10vh;
+        }
+        .cover-content { max-width: 75%; }
+        .cover-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+            text-transform: uppercase;
+            color: var(--text-on-dark);
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+        .cover-subtitle {
+            font-family: var(--font-body);
+            font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+            color: rgba(255,255,255,0.85);
+        }
+        .cover-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            color: var(--text-on-dark);
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            font-family: var(--font-body);
+            backdrop-filter: blur(10px);
+        }
+
+        /* ===========================================
+           SECTION DIVIDER
+           =========================================== */
+        .slide-section {
+            background: var(--bg-primary);
+            text-align: center;
+        }
+        .section-phrase {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            text-transform: uppercase;
+            color: var(--accent-apple-green);
+        }
+        .section-impact {
+            font-family: var(--font-body);
+            font-size: clamp(1rem, 1.8vw, 1.5rem);
+            color: var(--text-secondary);
+            max-width: 650px;
+            margin: 1rem auto;
+            line-height: 1.6;
+        }
+        .section-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* ===========================================
+           CONTENT SLIDES
+           =========================================== */
+        .slide-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+            text-transform: uppercase;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .slide-subtitle {
+            font-family: var(--font-display);
+            font-size: clamp(0.7rem, 1.1vw, 0.9rem);
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .body-text {
+            font-family: var(--font-body);
+            font-size: clamp(0.875rem, 1.3vw, 1.05rem);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+        .text-evidence {
+            color: var(--highlight-color);
+            text-transform: uppercase;
+            font-family: var(--font-display);
+            font-size: clamp(0.8rem, 1.2vw, 1rem);
+        }
+
+        /* Bullet list */
+        .bullet-list {
+            list-style: none;
+            padding-left: 1.5em;
+        }
+        .bullet-list li {
+            margin-bottom: 0.6em;
+            line-height: 1.6;
+        }
+        .bullet-list li::before {
+            content: '▪';
+            color: var(--bullet-color);
+            font-size: 130%;
+            margin-left: -1.5em;
+            margin-right: 0.5em;
+        }
+
+        /* ===========================================
+           IMAGE SLIDES
+           =========================================== */
+        .slide-image-side {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 0;
+            padding: 0;
+        }
+        .image-panel {
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            background: var(--bg-secondary);
+        }
+        .image-panel img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 1rem;
+        }
+        .text-panel {
+            padding: var(--slide-padding);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        /* Screenshot showcase */
+        .screenshot-container {
+            max-width: 900px;
+            margin: 1.5rem auto;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            border: 1px solid #e0e0e0;
+        }
+        .screenshot-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .screenshot-caption {
+            background: var(--bg-secondary);
+            padding: 0.6rem 1rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* ===========================================
+           VIDEO SLIDES
+           =========================================== */
+        .video-container {
+            max-width: 850px;
+            margin: 1.5rem auto;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            border: 1px solid #e0e0e0;
+            background: #000;
+        }
+        .video-container video {
+            width: 100%;
+            display: block;
+        }
+        .video-label {
+            background: var(--accent-apple-green);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .video-label .duration {
+            margin-left: auto;
+            font-family: var(--font-body);
+            font-weight: normal;
+            opacity: 0.85;
+        }
+
+        /* ===========================================
+           AGENDA SLIDE
+           =========================================== */
+        .slide-agenda { background: var(--bg-primary); }
+        .agenda-list {
+            list-style: none;
+            padding: 0;
+            max-width: 650px;
+            margin: 2rem auto;
+        }
+        .agenda-list li {
+            font-family: var(--font-body);
+            font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+            padding: 0.85rem 0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .agenda-number {
+            font-family: var(--font-display);
+            font-size: 1.5em;
+            color: var(--accent-apple-green);
+            min-width: 2rem;
+            text-align: center;
+        }
+
+        /* ===========================================
+           TABLE SLIDE
+           =========================================== */
+        .reply-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-family: var(--font-body);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .reply-table thead th {
+            background: var(--accent-apple-green);
+            color: white;
+            text-transform: uppercase;
+            font-family: var(--font-display);
+            font-size: 0.78rem;
+            padding: 0.65rem 0.8rem;
+            text-align: left;
+        }
+        .reply-table tbody tr:nth-child(even) { background: var(--bg-secondary); }
+        .reply-table tbody td {
+            padding: 0.6rem 0.8rem;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.85rem;
+        }
+        .reply-table .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .tag-prompt { background: #e8f5e9; color: #2d6a2e; }
+        .tag-tool { background: #e3f2fd; color: #0072ce; }
+        .tag-demo { background: #fff8e1; color: #e65100; }
+
+        /* ===========================================
+           STATEMENT SLIDE
+           =========================================== */
+        .slide-statement {
+            text-align: center;
+        }
+        .statement-text {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 3.5vw, 3rem);
+            text-transform: uppercase;
+            line-height: 1.25;
+            color: var(--text-primary);
+        }
+        .statement-highlight {
+            color: var(--accent-apple-green);
+        }
+
+        /* ===========================================
+           FLOW DIAGRAM
+           =========================================== */
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            flex-wrap: wrap;
+            margin: 2rem auto;
+            max-width: 900px;
+        }
+        .flow-step {
+            background: var(--bg-secondary);
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1rem 1.2rem;
+            text-align: center;
+            min-width: 140px;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .flow-step:hover {
+            border-color: var(--accent-apple-green);
+            transform: translateY(-3px);
+        }
+        .flow-step .step-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+        .flow-step .step-label {
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-primary);
+        }
+        .flow-step .step-desc {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 0.3rem;
+        }
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--accent-apple-green);
+            padding: 0 0.3rem;
+        }
+
+        /* ===========================================
+           PROMPT CODE BLOCK
+           =========================================== */
+        .prompt-block {
+            background: #1e1e2e;
+            color: #cdd6f4;
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: clamp(0.7rem, 1vw, 0.85rem);
+            line-height: 1.7;
+            overflow-x: auto;
+            max-width: 900px;
+            margin: 1rem auto;
+            border-left: 4px solid var(--accent-apple-green);
+        }
+        .prompt-block .keyword { color: #cba6f7; }
+        .prompt-block .string { color: #a6e3a1; }
+        .prompt-block .comment { color: #6c7086; font-style: italic; }
+
+        /* ===========================================
+           KPI CARDS
+           =========================================== */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            max-width: 900px;
+            margin: 2rem auto;
+        }
+        .kpi-card {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+        .kpi-value {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            color: var(--accent-apple-green);
+            line-height: 1;
+        }
+        .kpi-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        /* ===========================================
+           DOUBLE COLUMN
+           =========================================== */
+        .columns-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            padding: 1.5rem 0;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* ===========================================
+           THANK YOU
+           =========================================== */
+        .slide-thankyou {
+            background: linear-gradient(135deg, var(--accent-dark-green), var(--accent-apple-green));
+            text-align: center;
+        }
+        .thankyou-text {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 6vw, 5rem);
+            color: var(--text-on-dark);
+            text-transform: uppercase;
+        }
+        .thankyou-url {
+            font-family: var(--font-body);
+            font-size: 1.125rem;
+            color: rgba(255,255,255,0.8);
+            margin-top: 1rem;
+        }
+
+        /* ===========================================
+           RESPONSIVE
+           =========================================== */
+        @media (max-width: 768px) {
+            #navDots { display: none; }
+            .slide-image-side { grid-template-columns: 1fr; }
+            .image-panel { max-height: 40vh; }
+            .columns-2 { grid-template-columns: 1fr; }
+            .flow-diagram { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
+            .kpi-row { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div id="progressBar"></div>
+
+    <!-- Navigation Dots -->
+    <nav id="navDots"></nav>
+
+    <!-- Slide Counter -->
+    <div id="slideCounter"></div>
+
+    <!-- ============================================
+         SLIDE 1 — COVER
+         ============================================ -->
+    <section class="slide slide-cover">
+        <div class="cover-content">
+            <span class="cover-badge reveal">Copilot Studio + Work IQ MCP</span>
+            <h1 class="cover-title reveal">PROJECT REQUEST<br>TRACKER</h1>
+            <p class="cover-subtitle reveal">Analisi della demo video — Prompt, Tool e Flusso Operativo</p>
+            <p class="cover-subtitle reveal" style="margin-top: 1rem; opacity: 0.7;">Giugno 2026 · Video Analysis Report</p>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 2 — AGENDA
+         ============================================ -->
+    <section class="slide slide-agenda">
+        <h2 class="slide-title reveal">AGENDA</h2>
+        <p class="slide-subtitle reveal">STRUTTURA DELLA PRESENTAZIONE</p>
+        <ol class="agenda-list">
+            <li class="reveal"><span class="agenda-number">1</span> Overview del Progetto</li>
+            <li class="reveal"><span class="agenda-number">2</span> System Prompt &amp; Instructions</li>
+            <li class="reveal"><span class="agenda-number">3</span> Tool — Work IQ MCP</li>
+            <li class="reveal"><span class="agenda-number">4</span> Demo: Flusso Conversazionale</li>
+            <li class="reveal"><span class="agenda-number">5</span> Demo: AI Search &amp; Risultati</li>
+            <li class="reveal"><span class="agenda-number">6</span> Demo: OnePager &amp; Output Finale</li>
+        </ol>
+    </section>
+
+    <!-- ============================================
+         SLIDE 3 — SECTION: OVERVIEW
+         ============================================ -->
+    <section class="slide slide-section">
+        <div class="section-icon reveal">🎯</div>
+        <h2 class="section-phrase reveal">OVERVIEW</h2>
+        <p class="section-impact reveal">Un agente Copilot Studio che gestisce l'intero ciclo di creazione project request — dall'intake conversazionale alla generazione automatica di un OnePager su SharePoint.</p>
+    </section>
+
+    <!-- ============================================
+         SLIDE 4 — ARCHITETTURA / FLUSSO
+         ============================================ -->
+    <section class="slide">
+        <h2 class="slide-title reveal">FLUSSO OPERATIVO END-TO-END</h2>
+        <p class="slide-subtitle reveal">DALL'INPUT UTENTE ALL'OUTPUT DOCUMENTALE</p>
+
+        <div class="flow-diagram reveal">
+            <div class="flow-step">
+                <div class="step-icon">💬</div>
+                <div class="step-label">Prompt Utente</div>
+                <div class="step-desc">Richiesta in linguaggio naturale</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+                <div class="step-icon">📋</div>
+                <div class="step-label">Intake</div>
+                <div class="step-desc">Raccolta 12 campi strutturati</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+                <div class="step-icon">🔍</div>
+                <div class="step-label">AI Search</div>
+                <div class="step-desc">Work IQ MCP copilot_chat</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+                <div class="step-icon">🤔</div>
+                <div class="step-label">Decisione</div>
+                <div class="step-desc">Procedi / Rivedi scope</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+                <div class="step-icon">⚡</div>
+                <div class="step-label">Power Automate</div>
+                <div class="step-desc">Crea request + OnePager</div>
+            </div>
+        </div>
+
+        <div class="kpi-row reveal">
+            <div class="kpi-card">
+                <div class="kpi-value">13:12</div>
+                <div class="kpi-label">Minuti di Demo</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">12</div>
+                <div class="kpi-label">Campi Raccolti</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">3</div>
+                <div class="kpi-label">Documenti Trovati</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">55s</div>
+                <div class="kpi-label">AI Search Time</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 5 — SECTION: PROMPT
+         ============================================ -->
+    <section class="slide slide-section">
+        <div class="section-icon reveal">📝</div>
+        <h2 class="section-phrase reveal">SYSTEM PROMPT</h2>
+        <p class="section-impact reveal">Le istruzioni di sistema definiscono il comportamento dell'agente: raccolta dati, AI search, decisione utente e trigger Power Automate.</p>
+    </section>
+
+    <!-- ============================================
+         SLIDE 6 — PROMPT: SYSTEM INSTRUCTIONS
+         ============================================ -->
+    <section class="slide">
+        <h2 class="slide-title reveal">SYSTEM INSTRUCTIONS</h2>
+        <p class="slide-subtitle reveal">IL PROMPT DI SISTEMA DELL'AGENTE COPILOT STUDIO</p>
+
+        <div class="prompt-block reveal">
+            <span class="keyword">Goal:</span> Collect all required request fields first, then run the<br>
+            AI/WorkIQ overlap check, then proceed based on user choice,<br>
+            and only then trigger the Power Automate creation flow.<br><br>
+            <span class="comment">// Step 1 — Intake</span><br>
+            <span class="keyword">Intake first:</span> DO NOT DIRECTLY ASK values to the user,<br>
+            but MAKE SURE TO LAUNCH the <span class="string">"New project request"</span> topic...<br>
+            it asks the user: Title, Requester, Sponsor, Objective/Outcome,<br>
+            Benefits, Urgency, Deadline, Impacts, Dependencies, Effort, Risks, Notes<br><br>
+            <span class="comment">// Step 2 — AI Search</span><br>
+            <span class="keyword">Then run AI search</span> (Work IQ <span class="string">copilot_chat</span> MCP tool)<br>
+            to detect overlap and dependencies.<br><br>
+            <span class="comment">// Step 3 — Decisione utente</span><br>
+            <span class="keyword">Present findings and ask:</span> "What would you like to do next?"<br>
+            &nbsp;&nbsp;✅ Proceed as-is<br>
+            &nbsp;&nbsp;⟲ Revise the scope<br><br>
+            <span class="comment">// Step 4 — Creazione</span><br>
+            <span class="keyword">Only after user confirmation</span> → trigger Power Automate<br>
+            <span class="string">"Create new project request"</span> flow.
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 7 — PROMPT: SCREENSHOT
+         ============================================ -->
+    <section class="slide slide-image-side">
+        <div class="image-panel">
+            <img src="screenshots/01_prompt_system_instructions.png" alt="System Instructions in Copilot Studio">
+        </div>
+        <div class="text-panel">
+            <p class="text-evidence reveal">COPILOT STUDIO — OVERVIEW</p>
+            <h2 class="slide-title reveal" style="text-align: left; margin-bottom: 0.5rem;">INSTRUCTIONS DELL'AGENTE</h2>
+            <p class="body-text reveal">Le System Instructions definiscono un workflow in 4 fasi rigorosamente sequenziali:</p>
+            <ul class="bullet-list reveal">
+                <li><strong>Intake:</strong> raccolta di 12 campi strutturati via topic dedicato</li>
+                <li><strong>AI Search:</strong> ricerca nella KnowledgeBase OneDrive via Work IQ MCP</li>
+                <li><strong>Decisione:</strong> presentazione risultati e scelta utente</li>
+                <li><strong>Creazione:</strong> Power Automate genera OnePager su SharePoint</li>
+            </ul>
+            <p class="body-text reveal" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Modello: GPT-5 Chat</p>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 8 — PROMPT: USER REQUEST
+         ============================================ -->
+    <section class="slide">
+        <h2 class="slide-title reveal">PROMPT UTENTE</h2>
+        <p class="slide-subtitle reveal">IL PROMPT CHE AVVIA IL PROCESSO</p>
+
+        <div class="prompt-block reveal" style="font-size: clamp(0.9rem, 1.3vw, 1.1rem); border-left-color: var(--accent-vivid-blue);">
+            <span class="string">"I want to open a new internal project request to improve<br>
+            customer data quality in CRM and reduce duplicate<br>
+            customer records"</span>
+        </div>
+
+        <div class="screenshot-container reveal">
+            <img src="screenshots/03_prompt_user_request.png" alt="User prompt in test panel">
+            <div class="screenshot-caption">L'agente interpreta il prompt e instrada automaticamente al topic "New project request"</div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 9 — SECTION: TOOL
+         ============================================ -->
+    <section class="slide slide-section">
+        <div class="section-icon reveal">🔧</div>
+        <h2 class="section-phrase reveal">TOOL UTILIZZATI</h2>
+        <p class="section-impact reveal">Work IQ MCP, Topics Copilot Studio, AI Tool Node e Power Automate orchestrano il flusso end-to-end.</p>
+    </section>
+
+    <!-- ============================================
+         SLIDE 10 — TOOL: WORK IQ MCP
+         ============================================ -->
+    <section class="slide slide-image-side">
+        <div class="image-panel">
+            <img src="screenshots/04_tool_workiq_mcp_panel.png" alt="Work IQ Copilot MCP Panel">
+        </div>
+        <div class="text-panel">
+            <p class="text-evidence reveal">MODEL CONTEXT PROTOCOL</p>
+            <h2 class="slide-title reveal" style="text-align: left;">WORK IQ COPILOT (PREVIEW)</h2>
+            <p class="body-text reveal">Server MCP che espone il tool <code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:0.9em;">copilot_chat</code> per interrogare Microsoft 365:</p>
+            <ul class="bullet-list reveal">
+                <li>Ricerca semantica su documenti, email, chat, siti</li>
+                <li>Accesso a OneDrive, SharePoint, Teams, Mail</li>
+                <li>Priorità ai tool workload-specific quando il contesto è chiaro</li>
+            </ul>
+            <p class="body-text reveal" style="margin-top: 1rem; padding: 0.8rem; background: var(--bg-secondary); border-radius: 6px; font-size: 0.85rem;">
+                <strong>Query usata:</strong> <em>"Search inside my OneDrive folder 'CopilotStudioPOCs/POC_ProjectIntake/KnowledgeBase' for documents related to improving customer data quality in CRM..."</em>
+            </p>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 11 — TOOL: TABELLA COMPLETA
+         ============================================ -->
+    <section class="slide">
+        <h2 class="slide-title reveal">MAPPA DEI TOOL</h2>
+        <p class="slide-subtitle reveal">TUTTI I COMPONENTI COINVOLTI NEL FLUSSO</p>
+
+        <table class="reply-table reveal">
+            <thead>
+                <tr>
+                    <th>Tool</th>
+                    <th>Tipo</th>
+                    <th>Funzione</th>
+                    <th>Durata</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>copilot_chat</strong></td>
+                    <td><span class="tag tag-tool">MCP</span></td>
+                    <td>AI Search nella KnowledgeBase OneDrive</td>
+                    <td>55.31s</td>
+                </tr>
+                <tr>
+                    <td><strong>New project request</strong></td>
+                    <td><span class="tag tag-prompt">Topic</span></td>
+                    <td>Raccolta 12 campi strutturati (intake form)</td>
+                    <td>~3 min</td>
+                </tr>
+                <tr>
+                    <td><strong>Revise Project Request Title</strong></td>
+                    <td><span class="tag tag-prompt">Topic</span></td>
+                    <td>Revisione titolo su richiesta utente</td>
+                    <td>~15s</td>
+                </tr>
+                <tr>
+                    <td><strong>Create new project request</strong></td>
+                    <td><span class="tag tag-demo">Power Automate</span></td>
+                    <td>Genera OnePager su SharePoint + Request ID</td>
+                    <td>10.11s</td>
+                </tr>
+                <tr>
+                    <td><strong>Copilot in Word</strong></td>
+                    <td><span class="tag tag-demo">M365 Copilot</span></td>
+                    <td>Formattazione AI Notes da markdown a Word</td>
+                    <td>~20s</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- ============================================
+         SLIDE 12 — TOOL: COPILOT_CHAT EXECUTION
+         ============================================ -->
+    <section class="slide">
+        <h2 class="slide-title reveal">COPILOT_CHAT — ESECUZIONE</h2>
+        <p class="slide-subtitle reveal">55 SECONDI DI AI SEARCH NELLA KNOWLEDGEBASE</p>
+
+        <div class="columns-2">
+            <div class="reveal">
+                <div class="screenshot-container" style="margin: 0;">
+                    <img src="screenshots/05_tool_copilot_chat_working.png" alt="copilot_chat working">
+                    <div class="screenshot-caption">Tool in esecuzione — stato "Working"</div>
+                </div>
+            </div>
+            <div class="reveal">
+                <div class="screenshot-container" style="margin: 0;">
+                    <img src="screenshots/06_tool_copilot_chat_completed.png" alt="copilot_chat completed">
+                    <div class="screenshot-caption">Tool completato — risultati disponibili</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 13 — SECTION: DEMO
+         ============================================ -->
+    <section class="slide slide-section">
+        <div class="section-icon reveal">🎬</div>
+        <h2 class="section-phrase reveal">DEMO VIDEO</h2>
+        <p class="section-impact reveal">Registrazioni del flusso operativo completo: dal prompt iniziale alla generazione del documento finale.</p>
+    </section>
+
+    <!-- ============================================
+         SLIDE 14 — DEMO VIDEO: SETUP
+         ============================================ -->
+    <section class="slide">
+        <h2 class="slide-title reveal">FASE 1 — SETUP AGENTE</h2>
+        <p class="slide-subtitle reveal">CONFIGURAZIONE COPILOT STUDIO: OVERVIEW, INSTRUCTIONS, TOOLS</p>
+
+        <div class="video-container reveal">
+            <div class="video-label">
+                ▶ Setup Agente &amp; Instructions
+                <span class="duration">3:40</span>
+            </div>
+            <video controls preload="metadata" poster="screenshots/01_prompt_system_instructions.png">
+                <source src="clips/clip1_setup_agent_instructions.mp4" type="video/mp4">
+            </video>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 15 — DEMO VIDEO: PROMPT + DATA COLLECTION
+         ============================================ -->
+    <section class="slide">
+        <h2 class="slide-title reveal">FASE 2 — PROMPT &amp; RACCOLTA DATI</h2>
+        <p class="slide-subtitle reveal">L'UTENTE INVIA IL PROMPT E L'AGENTE RACCOGLIE I 12 CAMPI</p>
+
+        <div class="video-container reveal">
+            <div class="video-label">
+                ▶ Prompt Utente &amp; Data Collection
+                <span class="duration">2:40</span>
+            </div>
+            <video controls preload="metadata" poster="screenshots/03_prompt_user_request.png">
+                <source src="clips/clip2_user_prompt_data_collection.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="kpi-row reveal" style="margin-top: 1rem;">
+            <div class="kpi-card">
+                <div class="kpi-value" style="font-size: 1.5rem;">Title, Requester, Sponsor</div>
+                <div class="kpi-label">Identità Progetto</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" style="font-size: 1.5rem;">Urgency H · Effort M</div>
+                <div class="kpi-label">Classificazione</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" style="font-size: 1.5rem;">2026-09-22</div>
+                <div class="kpi-label">Deadline</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 16 — DEMO VIDEO: AI SEARCH
+         ============================================ -->
+    <section class="slide">
+        <h2 class="slide-title reveal">FASE 3 — AI SEARCH CON WORK IQ</h2>
+        <p class="slide-subtitle reveal">IL TOOL COPILOT_CHAT CERCA NELLA KNOWLEDGEBASE E RESTITUISCE INSIGHT</p>
+
+        <div class="video-container reveal">
+            <div class="video-label">
+                ▶ AI Search &amp; Risultati KnowledgeBase
+                <span class="duration">2:00</span>
+            </div>
+            <video controls preload="metadata" poster="screenshots/10_demo_ai_search_results.png">
+                <source src="clips/clip3_ai_search_workiq_results.mp4" type="video/mp4">
+            </video>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 17 — DEMO: AI SEARCH RESULTS DETAIL
+         ============================================ -->
+    <section class="slide slide-image-side">
+        <div class="image-panel">
+            <img src="screenshots/10_demo_ai_search_results.png" alt="AI Search Results">
+        </div>
+        <div class="text-panel">
+            <p class="text-evidence reveal">TOP RELATED DOCUMENTS</p>
+            <h2 class="slide-title reveal" style="text-align: left;">RISULTATI AI SEARCH</h2>
+            <ul class="bullet-list reveal">
+                <li><strong>Customer_Master_Cleanup_Initiative.docx</strong><br>
+                    <span style="color:var(--text-secondary);font-size:0.85rem;">Strategic initiative — duplicati, naming inconsistente, VAT IDs mancanti</span></li>
+                <li><strong>CRM_Data_Quality_Meeting_Notes.docx</strong><br>
+                    <span style="color:var(--text-secondary);font-size:0.85rem;">Stakeholder discussions — validation rules, CRM duplicate detection</span></li>
+                <li><strong>Customer_Data_Risk_Assessment.docx</strong><br>
+                    <span style="color:var(--text-secondary);font-size:0.85rem;">Risk analysis — CRM/ERP sync failures, ownership gaps</span></li>
+            </ul>
+            <p class="body-text reveal" style="margin-top: 1rem; padding: 0.8rem; background: #fff8e1; border-radius: 6px; font-size: 0.85rem; border-left: 3px solid var(--accent-amber);">
+                ⚠️ <strong>Temi emergenti:</strong> governance già discussa, rischi ERP sync, stakeholder Sales Ops/IT/Data Governance già identificati
+            </p>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 18 — DEMO VIDEO: REVISE & CREATE
+         ============================================ -->
+    <section class="slide">
+        <h2 class="slide-title reveal">FASE 4 — REVISIONE &amp; CREAZIONE</h2>
+        <p class="slide-subtitle reveal">L'UTENTE RIVEDE IL TITOLO, CONFERMA, E POWER AUTOMATE GENERA LA REQUEST</p>
+
+        <div class="video-container reveal">
+            <div class="video-label">
+                ▶ Revisione Titolo &amp; Creazione Request
+                <span class="duration">1:10</span>
+            </div>
+            <video controls preload="metadata" poster="screenshots/09_tool_create_request_completed.png">
+                <source src="clips/clip4_revise_create_request.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="columns-2 reveal" style="margin-top: 1rem;">
+            <div style="background: var(--bg-secondary); padding: 1.2rem; border-radius: 8px;">
+                <p class="text-evidence" style="font-size: 0.75rem;">PRIMA</p>
+                <p class="body-text" style="margin-top: 0.4rem;">Title: <em>"Improve CRM data quality..."</em></p>
+            </div>
+            <div style="background: var(--bg-secondary); padding: 1.2rem; border-radius: 8px;">
+                <p class="text-evidence" style="font-size: 0.75rem;">DOPO REVISIONE</p>
+                <p class="body-text" style="margin-top: 0.4rem;">Title: <strong>"CRM data deduplication"</strong></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 19 — DEMO VIDEO: ONEPAGER
+         ============================================ -->
+    <section class="slide">
+        <h2 class="slide-title reveal">FASE 5 — ONEPAGER SU SHAREPOINT</h2>
+        <p class="slide-subtitle reveal">DOCUMENTO GENERATO AUTOMATICAMENTE + FORMATTAZIONE CON COPILOT IN WORD</p>
+
+        <div class="video-container reveal">
+            <div class="video-label">
+                ▶ OnePager &amp; Copilot Word Formatting
+                <span class="duration">2:43</span>
+            </div>
+            <video controls preload="metadata" poster="screenshots/14_demo_final_onepager.png">
+                <source src="clips/clip5_onepager_copilot_word.mp4" type="video/mp4">
+            </video>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 20 — ONEPAGER: BEFORE/AFTER
+         ============================================ -->
+    <section class="slide">
+        <h2 class="slide-title reveal">ONEPAGER — PRIMA E DOPO</h2>
+        <p class="slide-subtitle reveal">DA MARKDOWN RAW A DOCUMENTO FORMATTATO CON COPILOT IN WORD</p>
+
+        <div class="columns-2">
+            <div class="reveal">
+                <div class="screenshot-container" style="margin: 0;">
+                    <img src="screenshots/12_demo_onepager_raw.png" alt="OnePager raw markdown">
+                    <div class="screenshot-caption">AI Notes in formato markdown grezzo</div>
+                </div>
+            </div>
+            <div class="reveal">
+                <div class="screenshot-container" style="margin: 0;">
+                    <img src="screenshots/14_demo_final_onepager.png" alt="OnePager final formatted">
+                    <div class="screenshot-caption">Documento finale formattato da Copilot Word</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 21 — STATEMENT
+         ============================================ -->
+    <section class="slide slide-statement">
+        <h2 class="statement-text reveal">
+            DALL'IDEA AL<br>
+            <span class="statement-highlight">DOCUMENTO UFFICIALE</span><br>
+            IN 13 MINUTI
+        </h2>
+        <p class="body-text reveal" style="text-align: center; max-width: 600px; margin: 1.5rem auto; color: var(--text-secondary);">
+            Un singolo prompt attiva intake strutturato, AI search nella knowledge base aziendale, e generazione automatica su SharePoint — senza uscire dalla chat.
+        </p>
+    </section>
+
+    <!-- ============================================
+         SLIDE 22 — KNOWLEDGEBASE SOURCE
+         ============================================ -->
+    <section class="slide slide-image-side">
+        <div class="image-panel">
+            <img src="screenshots/15_demo_knowledge_source_doc.png" alt="KnowledgeBase source document">
+        </div>
+        <div class="text-panel">
+            <p class="text-evidence reveal">KNOWLEDGE BASE</p>
+            <h2 class="slide-title reveal" style="text-align: left;">DOCUMENTI SORGENTE</h2>
+            <p class="body-text reveal">I documenti nella cartella OneDrive <code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:0.9em;">KnowledgeBase</code> costituiscono il corpus su cui il tool copilot_chat esegue la ricerca semantica:</p>
+            <ul class="bullet-list reveal">
+                <li><strong>Customer Master Cleanup Initiative</strong> — Piano strategico per la pulizia dati CRM</li>
+                <li><strong>CRM Data Quality Meeting Notes</strong> — Verbali riunioni stakeholder</li>
+                <li><strong>Customer Data Risk Assessment</strong> — Analisi rischi e mitigazioni</li>
+            </ul>
+            <p class="body-text reveal" style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+                L'agente non ha accesso generico ai dati — cerca solo nella cartella specificata nelle Instructions, garantendo risultati pertinenti e controllati.
+            </p>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 23 — TOPICS EDITOR
+         ============================================ -->
+    <section class="slide slide-image-side">
+        <div class="image-panel">
+            <img src="screenshots/07_tool_topics_editor.png" alt="Topics Editor">
+        </div>
+        <div class="text-panel">
+            <p class="text-evidence reveal">COPILOT STUDIO — AUTHORING</p>
+            <h2 class="slide-title reveal" style="text-align: left;">TOPICS EDITOR</h2>
+            <p class="body-text reveal">Il topic <strong>"New project request"</strong> definisce il flusso di raccolta dati con nodi Question per ogni campo:</p>
+            <ul class="bullet-list reveal">
+                <li>Urgency → <code style="background:#f0f0f0;padding:2px 4px;border-radius:3px;font-size:0.85em;">Global.varUrgency</code></li>
+                <li>Expected Effort → <code style="background:#f0f0f0;padding:2px 4px;border-radius:3px;font-size:0.85em;">Global.varEffort</code></li>
+                <li>Deadline → <code style="background:#f0f0f0;padding:2px 4px;border-radius:3px;font-size:0.85em;">Global.varDeadline</code></li>
+            </ul>
+            <p class="body-text reveal" style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+                Ogni variabile globale viene poi passata al flusso Power Automate per la generazione del OnePager.
+            </p>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 24 — THANK YOU
+         ============================================ -->
+    <section class="slide slide-thankyou">
+        <h2 class="thankyou-text reveal">THANK YOU</h2>
+        <p class="thankyou-url reveal">Project Request Tracker — Copilot Studio + Work IQ MCP</p>
+    </section>
+
+
+    <!-- ============================================
+         JAVASCRIPT — SLIDE CONTROLLER
+         ============================================ -->
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           Handles navigation, scroll-triggered animations,
+           progress bar, nav dots, keyboard and touch support.
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.totalSlides = this.slides.length;
+                this.isScrolling = false;
+
+                this.initNavDots();
+                this.initObserver();
+                this.initKeyboard();
+                this.initTouch();
+                this.initWheel();
+                this.updateCounter();
+            }
+
+            /* --- Navigation Dots --- */
+            initNavDots() {
+                const nav = document.getElementById('navDots');
+                this.slides.forEach((_, i) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot';
+                    dot.setAttribute('aria-label', `Slide ${i + 1}`);
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    nav.appendChild(dot);
+                });
+                this.dots = nav.querySelectorAll('.nav-dot');
+                if (this.dots[0]) this.dots[0].classList.add('active');
+            }
+
+            /* --- Intersection Observer for animations --- */
+            initObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = Array.from(this.slides).indexOf(entry.target);
+                            if (idx !== -1) {
+                                this.currentSlide = idx;
+                                this.updateUI();
+                            }
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            /* --- Keyboard Navigation --- */
+            initKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+                        e.preventDefault();
+                        this.goToSlide(Math.min(this.currentSlide + 1, this.totalSlides - 1));
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        this.goToSlide(Math.max(this.currentSlide - 1, 0));
+                    } else if (e.key === 'Home') {
+                        e.preventDefault();
+                        this.goToSlide(0);
+                    } else if (e.key === 'End') {
+                        e.preventDefault();
+                        this.goToSlide(this.totalSlides - 1);
+                    }
+                });
+            }
+
+            /* --- Touch/Swipe Support --- */
+            initTouch() {
+                let touchStartY = 0;
+                document.addEventListener('touchstart', (e) => {
+                    touchStartY = e.touches[0].clientY;
+                }, { passive: true });
+
+                document.addEventListener('touchend', (e) => {
+                    const touchEndY = e.changedTouches[0].clientY;
+                    const diff = touchStartY - touchEndY;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) {
+                            this.goToSlide(Math.min(this.currentSlide + 1, this.totalSlides - 1));
+                        } else {
+                            this.goToSlide(Math.max(this.currentSlide - 1, 0));
+                        }
+                    }
+                }, { passive: true });
+            }
+
+            /* --- Mouse Wheel --- */
+            initWheel() {
+                let wheelTimeout;
+                document.addEventListener('wheel', (e) => {
+                    if (this.isScrolling) return;
+                    clearTimeout(wheelTimeout);
+                    wheelTimeout = setTimeout(() => {
+                        if (e.deltaY > 30) {
+                            this.goToSlide(Math.min(this.currentSlide + 1, this.totalSlides - 1));
+                        } else if (e.deltaY < -30) {
+                            this.goToSlide(Math.max(this.currentSlide - 1, 0));
+                        }
+                    }, 50);
+                }, { passive: true });
+            }
+
+            /* --- Go to Slide --- */
+            goToSlide(index) {
+                if (index === this.currentSlide || this.isScrolling) return;
+                this.isScrolling = true;
+                this.currentSlide = index;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                this.updateUI();
+                setTimeout(() => { this.isScrolling = false; }, 600);
+            }
+
+            /* --- Update UI --- */
+            updateUI() {
+                // Progress bar
+                const progress = ((this.currentSlide + 1) / this.totalSlides) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
+
+                // Nav dots
+                this.dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === this.currentSlide);
+                });
+
+                // Counter
+                this.updateCounter();
+            }
+
+            updateCounter() {
+                document.getElementById('slideCounter').textContent =
+                    `${this.currentSlide + 1} / ${this.totalSlides}`;
+            }
+        }
+
+        // Initialize presentation
+        document.addEventListener('DOMContentLoaded', () => {
+            new SlidePresentation();
+        });
+    </script>
+</body>
+</html>

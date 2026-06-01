@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work IQ — Demo Visuale</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-dark: #0d1117;
+            --bg-dark2: #161b22;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --text-on-dark: #e6edf7;
+            --text-muted: #8b949e;
+            --accent-green: #76b82a;
+            --accent-dark-green: #2d6a2e;
+            --accent-bright-green: #8cc63f;
+            --accent-blue: #0072ce;
+            --accent-rose: #c4376b;
+            --font-display: 'Arial Black', 'Arial Bold', sans-serif;
+            --font-body: Arial, Helvetica, sans-serif;
+            --slide-padding: clamp(2rem, 5vw, 4rem);
+            --ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
+            --duration: 0.4s;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Progress */
+        #progressBar {
+            position: fixed; top: 0; left: 0; height: 3px;
+            background: var(--accent-green); z-index: 1000;
+            transition: width 0.3s ease; width: 0%;
+        }
+
+        /* Nav dots */
+        #navDots {
+            position: fixed; right: 1.5rem; top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 0.5rem; z-index: 999;
+        }
+        .nav-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: #ccc; border: none; cursor: pointer;
+            transition: background 0.3s, transform 0.3s; padding: 0;
+        }
+        .nav-dot.active { background: var(--accent-green); transform: scale(1.3); }
+        .nav-dot:hover { background: var(--accent-dark-green); }
+
+        /* Counter */
+        #slideCounter {
+            position: fixed; bottom: 1.5rem; right: 1.5rem;
+            font-size: 0.75rem; color: var(--text-secondary); z-index: 999;
+        }
+
+        /* Slide base */
+        .slide {
+            min-height: 100vh; padding: var(--slide-padding);
+            scroll-snap-align: start;
+            display: flex; flex-direction: column; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+
+        /* Reveal animations */
+        .reveal {
+            opacity: 0; transform: translateY(20px);
+            transition: opacity var(--duration) var(--ease-out), transform var(--duration) var(--ease-out);
+        }
+        .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+
+        /* === COVER === */
+        .slide-cover {
+            background: linear-gradient(135deg, var(--accent-dark-green) 0%, var(--accent-green) 50%, var(--accent-bright-green) 100%);
+            justify-content: flex-end; padding-bottom: 10vh;
+        }
+        .cover-content { max-width: 70%; }
+        .cover-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 3.75rem);
+            text-transform: uppercase; color: white; line-height: 1.1; margin-bottom: 1rem;
+        }
+        .cover-subtitle { font-size: clamp(0.875rem, 1.5vw, 1.125rem); color: rgba(255,255,255,.85); }
+        .cover-date { font-size: 0.9rem; color: rgba(255,255,255,.7); margin-top: 0.5rem; }
+
+        /* === SECTION DIVIDER === */
+        .slide-section {
+            background: var(--bg-primary); text-align: center; justify-content: center;
+        }
+        .section-phrase {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            text-transform: uppercase; color: var(--accent-green);
+        }
+        .section-impact {
+            font-size: clamp(1rem, 1.8vw, 1.5rem);
+            color: var(--text-secondary); max-width: 600px;
+            margin: 1rem auto 0; line-height: 1.5;
+        }
+
+        /* === STATEMENT === */
+        .slide-statement {
+            text-align: center; justify-content: center; background: var(--bg-dark);
+        }
+        .statement-text {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 3.5vw, 3rem);
+            text-transform: uppercase; line-height: 1.3; color: white;
+        }
+        .statement-text .green { color: var(--accent-green); }
+
+        /* === SLIDE TITLE (shared) === */
+        .slide-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+            text-transform: uppercase; text-align: center; margin-bottom: 0.4rem;
+        }
+        .slide-subtitle {
+            font-family: var(--font-display);
+            font-size: clamp(0.7rem, 1vw, 0.9rem);
+            text-transform: uppercase; text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        /* === FOUR PILLARS === */
+        .pillars-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem; max-width: 1100px; margin: 1.5rem auto;
+        }
+        .pillar-card {
+            background: var(--bg-secondary); border-radius: 10px;
+            padding: 1.5rem; text-align: center; border-top: 3px solid #ccc;
+        }
+        .pillar-card.red { border-top-color: #ef4444; }
+        .pillar-card.yellow { border-top-color: #f59e0b; }
+        .pillar-card.purple { border-top-color: #8b5cf6; }
+        .pillar-card.green { border-top-color: var(--accent-green); }
+        .pillar-card .pillar-number {
+            font-family: var(--font-display); font-size: 2rem;
+            color: var(--text-secondary); opacity: 0.4;
+        }
+        .pillar-card .pillar-name {
+            font-family: var(--font-display); font-size: 0.9rem;
+            text-transform: uppercase; margin: 0.5rem 0;
+        }
+        .pillar-card .pillar-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; }
+        .pillar-card .pillar-tools { font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.75rem; opacity: 0.7; }
+
+        /* ====================================================
+           SCREENSHOT SLIDES — Dark background, image focus
+           ==================================================== */
+        .slide-screenshot {
+            background: var(--bg-dark);
+            padding: 2rem 3rem;
+            justify-content: center;
+            align-items: center;
+        }
+        .slide-screenshot .slide-title { color: white; margin-bottom: 0.3rem; }
+        .slide-screenshot .slide-subtitle { color: var(--text-muted); margin-bottom: 1rem; }
+
+        .screenshot-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.08);
+        }
+        .screenshot-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Side-by-side screenshots */
+        .screenshot-duo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .screenshot-card {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 30px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.08);
+            position: relative;
+        }
+        .screenshot-card img { width: 100%; height: auto; display: block; }
+        .screenshot-label {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,.85));
+            padding: 2rem 1.2rem 1rem;
+        }
+        .screenshot-label .label-badge {
+            display: inline-flex; align-items: center; gap: .4rem;
+            padding: .25rem .8rem; border-radius: 6px;
+            font-family: var(--font-display); font-size: .7rem;
+            text-transform: uppercase; color: white;
+        }
+        .badge-bg-red { background: rgba(239,68,68,.7); }
+        .badge-bg-yellow { background: rgba(245,158,11,.7); }
+        .badge-bg-purple { background: rgba(139,92,246,.7); }
+        .badge-bg-green { background: rgba(118,184,42,.7); }
+        .screenshot-label .label-text {
+            display: block; margin-top: .4rem;
+            font-size: .8rem; color: rgba(255,255,255,.85);
+        }
+
+        /* Single large screenshot with side annotation */
+        .screenshot-annotated {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-items: center;
+        }
+        .annotation-box {
+            color: var(--text-on-dark);
+        }
+        .annotation-box h3 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            color: var(--accent-green);
+            margin-bottom: .6rem;
+        }
+        .annotation-box p {
+            font-size: .95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: .8rem;
+        }
+        .annotation-box .highlight-stat {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: white;
+            line-height: 1;
+        }
+        .annotation-box .highlight-label {
+            font-size: .75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Agent badges in annotations */
+        .agent-badge-inline {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 1.5rem; height: 1.5rem; border-radius: 50%;
+            color: white; font-family: var(--font-display); font-size: .65rem;
+            flex-shrink: 0; margin-right: .3rem;
+        }
+
+        /* === COMPARATIVE TABLE === */
+        .slide-table { background: var(--bg-primary); }
+        .reply-table {
+            width: 100%; max-width: 950px; margin: 1.5rem auto;
+            border-collapse: collapse;
+        }
+        .reply-table thead th {
+            background: var(--accent-green); color: white;
+            text-transform: uppercase; font-family: var(--font-display);
+            font-size: 0.8rem; padding: 0.75rem 1rem; text-align: left;
+        }
+        .reply-table tbody tr:nth-child(even) { background: var(--bg-secondary); }
+        .reply-table tbody td {
+            padding: 0.75rem 1rem; border-bottom: 1px solid #e0e0e0; font-size: 0.9rem;
+        }
+        .emoji { font-size: 1.1rem; }
+
+        /* === KEY MESSAGES === */
+        .messages-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;
+            max-width: 950px; margin: 1.5rem auto;
+        }
+        .msg-card {
+            background: var(--bg-secondary); border-radius: 8px; padding: 1.25rem;
+        }
+        .msg-card .msg-label {
+            font-family: var(--font-display); font-size: 0.7rem;
+            text-transform: uppercase; color: var(--accent-green); margin-bottom: 0.25rem;
+        }
+        .msg-card .msg-text { font-size: 0.9rem; line-height: 1.5; }
+        .msg-card .msg-quote { font-style: italic; font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem; }
+
+        /* === THANK YOU === */
+        .slide-thankyou {
+            background: linear-gradient(135deg, var(--accent-dark-green), var(--accent-green));
+            text-align: center; justify-content: center;
+        }
+        .thankyou-text {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 6vw, 5rem);
+            color: white; text-transform: uppercase;
+        }
+        .thankyou-url { font-size: 1.125rem; color: rgba(255,255,255,.8); margin-top: 1rem; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #navDots { display: none; }
+            .slide { padding: 1.5rem; }
+            .pillars-grid { grid-template-columns: 1fr 1fr; }
+            .screenshot-duo { grid-template-columns: 1fr; }
+            .screenshot-annotated { grid-template-columns: 1fr; }
+            .messages-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Print */
+        @media print {
+            html { scroll-snap-type: none; }
+            .slide { scroll-snap-align: unset; page-break-after: always; break-after: page; }
+            #progressBar, #navDots, #slideCounter { display: none; }
+            .reveal { opacity: 1; transform: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="progressBar"></div>
+    <nav id="navDots" aria-label="Navigazione slide"></nav>
+    <div id="slideCounter">1 / 20</div>
+
+    <!-- ═══════════════════ SLIDE 1: COVER ═══════════════════ -->
+    <section class="slide slide-cover">
+        <div class="cover-content">
+            <h1 class="cover-title reveal">WORK IQ<br>DEMO<br>COMPARATIVA</h1>
+            <p class="cover-subtitle reveal">4 livelli di intelligenza — Stesso prompt, risposte diverse</p>
+            <p class="cover-date reveal">1 Giugno 2026 · Copilot Studio + Work IQ MCP</p>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 2: STATEMENT ═══════════════════ -->
+    <section class="slide slide-statement">
+        <h2 class="statement-text reveal">SENZA CONTESTO,<br>L'AI <span class="green">NON SERVE</span><br>IN AZIENDA.</h2>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 3: 4 LIVELLI ═══════════════════ -->
+    <section class="slide slide-text-single" style="background:var(--bg-primary)">
+        <h2 class="slide-title reveal" style="color:var(--text-primary)">I 4 LIVELLI DI INTELLIGENZA</h2>
+        <p class="slide-subtitle reveal" style="color:var(--text-secondary)">STESSO PROMPT, CAPACITÀ CRESCENTI</p>
+        <div class="pillars-grid">
+            <div class="pillar-card red reveal">
+                <div class="pillar-number">1</div>
+                <div class="pillar-name">Base</div>
+                <div class="pillar-desc">Solo LLM generico.<br>Nessun tool, nessun dato.</div>
+                <div class="pillar-tools">—</div>
+            </div>
+            <div class="pillar-card yellow reveal">
+                <div class="pillar-number">2</div>
+                <div class="pillar-name">Connessioni</div>
+                <div class="pillar-desc">Accesso diretto a dati Microsoft 365.</div>
+                <div class="pillar-tools">Mail · Calendar · User</div>
+            </div>
+            <div class="pillar-card purple reveal">
+                <div class="pillar-number">3</div>
+                <div class="pillar-name">Work IQ Copilot</div>
+                <div class="pillar-desc">Semantic Index: capisce il contesto nel tempo.</div>
+                <div class="pillar-tools">Semantic Index · Memory · Cross-app</div>
+            </div>
+            <div class="pillar-card green reveal">
+                <div class="pillar-number">4</div>
+                <div class="pillar-name">Completo</div>
+                <div class="pillar-desc">Intelligenza profonda + accesso diretto. Capisce e agisce.</div>
+                <div class="pillar-tools">Copilot + Mail + Calendar + User</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 4: DASHBOARD ═══════════════════ -->
+    <section class="slide slide-screenshot">
+        <h2 class="slide-title reveal">DASHBOARD DI PARTENZA</h2>
+        <p class="slide-subtitle reveal">4 AGENTI COPILOT STUDIO CONNESSI IN PARALLELO</p>
+        <div class="screenshot-container reveal">
+            <img src="screenshots/00_dashboard_pulita.png" alt="Dashboard pulita con 4 agenti"/>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 5: PROMPT 1 SECTION ═══════════════════ -->
+    <section class="slide slide-section">
+        <h2 class="section-phrase reveal">PROMPT 1</h2>
+        <p class="section-impact reveal">"Cosa devo sapere prima della mia prossima riunione?"</p>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 6: PROMPT 1 OVERVIEW ═══════════════════ -->
+    <section class="slide slide-screenshot">
+        <h2 class="slide-title reveal">PROMPT 1 — VISTA COMPARATIVA</h2>
+        <p class="slide-subtitle reveal">STESSO PROMPT, 4 RISPOSTE DIVERSE</p>
+        <div class="screenshot-container reveal">
+            <img src="screenshots/01_prompt1_overview.png" alt="Prompt 1 overview"/>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 7: P1 AGENT 1 vs 2 ═══════════════════ -->
+    <section class="slide slide-screenshot">
+        <h2 class="slide-title reveal">PROMPT 1 — BASE vs CONNESSIONI</h2>
+        <p class="slide-subtitle reveal">DA "NON HO INFORMAZIONI" A DETTAGLI COMPLETI</p>
+        <div class="screenshot-duo reveal">
+            <div class="screenshot-card">
+                <img src="screenshots/02_prompt1_agent1.png" alt="Agent 1 Base"/>
+                <div class="screenshot-label">
+                    <span class="label-badge badge-bg-red">1 BASE</span>
+                    <span class="label-text">🔴 Educato ma inutile. Non sa nulla del tuo lavoro.</span>
+                </div>
+            </div>
+            <div class="screenshot-card">
+                <img src="screenshots/02_prompt1_agent2.png" alt="Agent 2 Connessioni"/>
+                <div class="screenshot-label">
+                    <span class="label-badge badge-bg-yellow">2 CONNESSIONI</span>
+                    <span class="label-text">🟡 Vede il calendario: titolo, orario, partecipanti.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 8: P1 AGENT 3 vs 4 ═══════════════════ -->
+    <section class="slide slide-screenshot">
+        <h2 class="slide-title reveal">PROMPT 1 — COPILOT vs COMPLETO</h2>
+        <p class="slide-subtitle reveal">ANALISI PROFONDA E SUGGERIMENTI OPERATIVI</p>
+        <div class="screenshot-duo reveal">
+            <div class="screenshot-card">
+                <img src="screenshots/02_prompt1_agent3.png" alt="Agent 3 Work IQ Copilot"/>
+                <div class="screenshot-label">
+                    <span class="label-badge badge-bg-purple">3 WORK IQ COPILOT</span>
+                    <span class="label-text">🟣 Analisi strutturata, contesto storico, briefing operativo.</span>
+                </div>
+            </div>
+            <div class="screenshot-card">
+                <img src="screenshots/02_prompt1_agent4.png" alt="Agent 4 Completo"/>
+                <div class="screenshot-label">
+                    <span class="label-badge badge-bg-green">4 COMPLETO</span>
+                    <span class="label-text">🟢 Dettagli operativi + stato RSVP + azioni concrete.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 9: PROMPT 2 SECTION ═══════════════════ -->
+    <section class="slide slide-section">
+        <h2 class="section-phrase reveal">PROMPT 2</h2>
+        <p class="section-impact reveal">"Riassumi le email non lette più importanti di oggi."</p>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 10: PROMPT 2 OVERVIEW ═══════════════════ -->
+    <section class="slide slide-screenshot">
+        <h2 class="slide-title reveal">PROMPT 2 — VISTA COMPARATIVA</h2>
+        <p class="slide-subtitle reveal">EMAIL: DA ZERO INFORMAZIONI A INSIGHT STRUTTURATI</p>
+        <div class="screenshot-container reveal">
+            <img src="screenshots/06_prompt2_overview.png" alt="Prompt 2 overview"/>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 11: P2 AGENT 1 vs 2 ═══════════════════ -->
+    <section class="slide slide-screenshot">
+        <h2 class="slide-title reveal">PROMPT 2 — BASE vs CONNESSIONI</h2>
+        <p class="slide-subtitle reveal">ACCESSO AI DATI VS ANALISI CIECA</p>
+        <div class="screenshot-duo reveal">
+            <div class="screenshot-card">
+                <img src="screenshots/07_prompt2_agent1.png" alt="Agent 1 Base"/>
+                <div class="screenshot-label">
+                    <span class="label-badge badge-bg-red">1 BASE</span>
+                    <span class="label-text">🔴 Nessun accesso alla mail.</span>
+                </div>
+            </div>
+            <div class="screenshot-card">
+                <img src="screenshots/07_prompt2_agent2.png" alt="Agent 2 Connessioni"/>
+                <div class="screenshot-label">
+                    <span class="label-badge badge-bg-yellow">2 CONNESSIONI</span>
+                    <span class="label-text">🟡 Elenca email categorizzate con azioni suggerite.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 12: P2 AGENT 3 vs 4 ═══════════════════ -->
+    <section class="slide slide-screenshot">
+        <h2 class="slide-title reveal">PROMPT 2 — COPILOT vs COMPLETO</h2>
+        <p class="slide-subtitle reveal">STRATEGIE ALTERNATIVE VS FILTRAGGIO INTELLIGENTE</p>
+        <div class="screenshot-duo reveal">
+            <div class="screenshot-card">
+                <img src="screenshots/07_prompt2_agent3.png" alt="Agent 3 Work IQ Copilot"/>
+                <div class="screenshot-label">
+                    <span class="label-badge badge-bg-purple">3 WORK IQ COPILOT</span>
+                    <span class="label-text">🟣 Spiega l'assenza di risultati e propone strategie alternative.</span>
+                </div>
+            </div>
+            <div class="screenshot-card">
+                <img src="screenshots/07_prompt2_agent4.png" alt="Agent 4 Completo"/>
+                <div class="screenshot-label">
+                    <span class="label-badge badge-bg-green">4 COMPLETO</span>
+                    <span class="label-text">🟢 Email filtrate per rilevanza con data e anteprima.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 13: PROMPT 3 SECTION ═══════════════════ -->
+    <section class="slide slide-section">
+        <h2 class="section-phrase reveal">PROMPT 3</h2>
+        <p class="section-impact reveal">"Manda una email a s.marchetti@novatech.it: digli che ho visto le sue domande sul progetto e ne parliamo alla prossima riunione."</p>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 14: PROMPT 3 AGENT 4 EMAIL ═══════════════════ -->
+    <section class="slide slide-screenshot">
+        <h2 class="slide-title reveal">AGENTE 4 — AZIONE COMPLETATA</h2>
+        <p class="slide-subtitle reveal">CAPIRE + AGIRE = VALORE REALE</p>
+        <div class="screenshot-annotated reveal">
+            <div class="screenshot-card">
+                <img src="screenshots/12_prompt3_agent4_email.png" alt="Agent 4 email inviata"/>
+            </div>
+            <div class="annotation-box">
+                <h3>Un singolo prompt.</h3>
+                <p>L'agente ha compreso il contesto dalla conversazione, formulato un messaggio appropriato e inviato l'email.</p>
+                <div class="highlight-stat">1</div>
+                <div class="highlight-label">passaggio per capire e agire</div>
+                <div style="margin-top:1.5rem">
+                    <p style="font-size:.85rem">📨 <strong style="color:white">A:</strong> s.marchetti@novatech.it</p>
+                    <p style="font-size:.85rem; margin-top:.3rem">✅ <strong style="color:var(--accent-green)">Email inviata con successo</strong></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 15: PANORAMICA FINALE ═══════════════════ -->
+    <section class="slide slide-screenshot">
+        <h2 class="slide-title reveal">PANORAMICA FINALE</h2>
+        <p class="slide-subtitle reveal">TUTTA LA CONVERSAZIONE A CONFRONTO</p>
+        <div class="screenshot-container reveal">
+            <img src="screenshots/13_panoramica_finale.png" alt="Panoramica finale"/>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 16: TABELLA COMPARATIVA ═══════════════════ -->
+    <section class="slide slide-table">
+        <h2 class="slide-title reveal" style="color:var(--text-primary)">RIEPILOGO COMPARATIVO</h2>
+        <p class="slide-subtitle reveal" style="color:var(--text-secondary)">CAPIRE · AGIRE · FONTI</p>
+        <table class="reply-table reveal">
+            <thead>
+                <tr><th>#</th><th>Livello</th><th>Capisce</th><th>Agisce</th><th>Fonti dati</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="emoji">🔴</span></td>
+                    <td><strong>Base</strong></td><td>❌</td><td>❌</td><td>Nessuna</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">🟡</span></td>
+                    <td><strong>Connessioni</strong></td><td>Parziale</td><td>✅</td><td>Mail, Calendar, User</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">🟣</span></td>
+                    <td><strong>Work IQ Copilot</strong></td><td>✅✅</td><td>❌</td><td>Semantic Index, Memory, M365</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">🟢</span></td>
+                    <td><strong>Completo</strong></td><td>✅✅</td><td>✅</td><td>Tutto</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 17: MESSAGGI CHIAVE ═══════════════════ -->
+    <section class="slide slide-text-single" style="background:var(--bg-primary)">
+        <h2 class="slide-title reveal" style="color:var(--text-primary)">MESSAGGI CHIAVE</h2>
+        <div class="messages-grid">
+            <div class="msg-card reveal">
+                <div class="msg-label">Senza contesto</div>
+                <div class="msg-text">Un LLM generico non serve in azienda. È intelligente ma cieco.</div>
+                <div class="msg-quote">"Non risultano informazioni…"</div>
+            </div>
+            <div class="msg-card reveal">
+                <div class="msg-label">Connessioni</div>
+                <div class="msg-text">Con le API vede le tue app e fa cose. Ma cerca per keyword, non capisce il contesto.</div>
+                <div class="msg-quote">"Ecco i dettagli della tua riunione"</div>
+            </div>
+            <div class="msg-card reveal">
+                <div class="msg-label">Semantic Index</div>
+                <div class="msg-text">Il semantic index connette i puntini nel tempo. Analisi strutturata e proattiva.</div>
+                <div class="msg-quote">"Preparati su rischi e dipendenze"</div>
+            </div>
+            <div class="msg-card reveal">
+                <div class="msg-label">Completo</div>
+                <div class="msg-text">Capire + Agire = valore reale. Ha inviato l'email.</div>
+                <div class="msg-quote">"Email inviata con successo ✅"</div>
+            </div>
+            <div class="msg-card reveal">
+                <div class="msg-label">Governance</div>
+                <div class="msg-text">Ogni tool è controllabile dall'admin center. Ogni chiamata è tracciabile.</div>
+            </div>
+            <div class="msg-card reveal">
+                <div class="msg-label">MCP Standard</div>
+                <div class="msg-text">Domani aggiungi SharePoint, Dynamics, i tuoi sistemi custom. Protocollo aperto.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ SLIDE 18: THANK YOU ═══════════════════ -->
+    <section class="slide slide-thankyou">
+        <h2 class="thankyou-text reveal">THANK YOU</h2>
+        <p class="thankyou-url reveal">www.novatech.it</p>
+    </section>
+
+    <!-- ═══════════════════ JAVASCRIPT ═══════════════════ -->
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = Array.from(document.querySelectorAll('.slide'));
+                this.currentSlide = 0;
+                this.totalSlides = this.slides.length;
+                this.isScrolling = false;
+                this.initNavDots();
+                this.initObserver();
+                this.initKeyboard();
+                this.initTouch();
+                this.initWheel();
+                this.updateCounter();
+            }
+            initNavDots() {
+                const nav = document.getElementById('navDots');
+                this.slides.forEach((_, i) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+                    dot.setAttribute('aria-label', `Slide ${i + 1}`);
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    nav.appendChild(dot);
+                });
+                this.dots = Array.from(nav.querySelectorAll('.nav-dot'));
+            }
+            initObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = this.slides.indexOf(entry.target);
+                            if (idx !== -1) {
+                                this.currentSlide = idx;
+                                this.updateDots();
+                                this.updateProgress();
+                                this.updateCounter();
+                            }
+                        }
+                    });
+                }, { threshold: 0.5 });
+                this.slides.forEach(s => observer.observe(s));
+            }
+            initKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+                        e.preventDefault(); this.next();
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                        e.preventDefault(); this.prev();
+                    }
+                });
+            }
+            initTouch() {
+                let startY = 0;
+                document.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; });
+                document.addEventListener('touchend', (e) => {
+                    const diff = startY - e.changedTouches[0].clientY;
+                    if (Math.abs(diff) > 50) { diff > 0 ? this.next() : this.prev(); }
+                });
+            }
+            initWheel() {
+                let lastTime = 0;
+                document.addEventListener('wheel', (e) => {
+                    const now = Date.now();
+                    if (now - lastTime < 800) return;
+                    lastTime = now;
+                    if (e.deltaY > 0) this.next(); else if (e.deltaY < 0) this.prev();
+                }, { passive: true });
+            }
+            goToSlide(i) {
+                this.slides[i].scrollIntoView({ behavior: 'smooth' });
+            }
+            next() { if (this.currentSlide < this.totalSlides - 1) this.goToSlide(this.currentSlide + 1); }
+            prev() { if (this.currentSlide > 0) this.goToSlide(this.currentSlide - 1); }
+            updateDots() {
+                this.dots.forEach((d, i) => d.classList.toggle('active', i === this.currentSlide));
+            }
+            updateProgress() {
+                const pct = (this.currentSlide / (this.totalSlides - 1)) * 100;
+                document.getElementById('progressBar').style.width = pct + '%';
+            }
+            updateCounter() {
+                document.getElementById('slideCounter').textContent =
+                    `${this.currentSlide + 1} / ${this.totalSlides}`;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => new SlidePresentation());
+    </script>
+</body>
+</html>
