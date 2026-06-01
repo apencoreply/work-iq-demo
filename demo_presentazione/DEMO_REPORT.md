@@ -170,10 +170,10 @@ Dimostrare come un agente Copilot Studio migliora progressivamente aggiungendo W
 
 ---
 
-## Prompt 3 (solo Agente 4): "Manda una email a s.marchetti@novatech.it: digli che ho visto le sue domande sul progetto e ne parliamo alla prossima riunione."
+## Prompt 3 (solo Agente 4): "Manda una email a s.marchetti@reply.it: digli che ho visto le sue domande sul progetto e ne parliamo alla prossima riunione."
 
 ### Agente 4 — Completo
-> Ho inviato l'email a **s.marchetti@novatech.it** con oggetto *"Discussione delle domande sul progetto"* e il messaggio:
+> Ho inviato l'email a **s.marchetti@reply.it** con oggetto *"Discussione delle domande sul progetto"* e il messaggio:
 >
 > > Ciao Sofia,
 > > ho visto le tue domande sul progetto.
@@ -226,6 +226,6 @@ Dimostrare come un agente Copilot Studio migliora progressivamente aggiungendo W
 | `screenshots/07_prompt2_agent2.png` | Agente 2 — Email categorizzate con azioni |
 | `screenshots/07_prompt2_agent3.png` | Agente 3 — Strategie alternative intelligenti |
 | `screenshots/07_prompt2_agent4.png` | Agente 4 — Email filtrate per rilevanza |
-| `screenshots/11_prompt3_overview.png` | Vista con email inviata a s.marchetti@novatech.it |
+| `screenshots/11_prompt3_overview.png` | Vista con email inviata a s.marchetti@reply.it |
 | `screenshots/12_prompt3_agent4_email.png` | Agente 4 — Email inviata con successo |
 | `screenshots/13_panoramica_finale.png` | Vista finale completa della demo |
