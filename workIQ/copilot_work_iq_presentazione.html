@@ -678,6 +678,50 @@
         }
 
         /* ===========================================
+           MASCOT — Copiloto
+           =========================================== */
+        .mascot {
+            pointer-events: none;
+            user-select: none;
+        }
+        /* Large mascot on cover & thank-you */
+        .mascot-large {
+            width: clamp(140px, 18vw, 220px);
+            position: absolute;
+            right: 6%;
+            bottom: 10%;
+            filter: drop-shadow(0 8px 32px rgba(91,155,213,0.25));
+            animation: mascotFloat 4s ease-in-out infinite;
+        }
+        /* Medium mascot next to Copilot suggestions */
+        .mascot-medium {
+            width: clamp(60px, 8vw, 100px);
+            filter: drop-shadow(0 4px 16px rgba(91,155,213,0.2));
+            animation: mascotFloat 4s ease-in-out infinite;
+        }
+        /* Small mascot on section dividers */
+        .mascot-small {
+            width: clamp(48px, 5vw, 72px);
+            position: absolute;
+            bottom: 8%;
+            right: 6%;
+            opacity: 0.5;
+            filter: drop-shadow(0 2px 8px rgba(91,155,213,0.15));
+            animation: mascotFloat 5s ease-in-out infinite;
+        }
+        @keyframes mascotFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .mascot-large, .mascot-medium, .mascot-small { animation: none; }
+        }
+        @media (max-width: 768px) {
+            .mascot-large { width: 100px; right: 4%; bottom: 5%; }
+            .mascot-small { display: none; }
+        }
+
+        /* ===========================================
            AMBIENT GLOW (subtle background decoration)
            =========================================== */
         .glow-blue {
@@ -726,6 +770,7 @@
         </div>
         <p class="slide-subtitle reveal" style="max-width:600px;">Trasformare il modo di lavorare con l'AI integrata in Microsoft 365</p>
         <p class="cover-meta reveal">Milano · 2026</p>
+        <img src="Copiloto.png" alt="Copiloto mascot" class="mascot mascot-large reveal">
     </section>
 
 
@@ -763,6 +808,7 @@
         <div class="section-number reveal">01</div>
         <h2 class="section-title reveal">Supporto ai<br>processi operativi</h2>
         <p class="section-desc reveal">Mail, offerte, richieste fornitori: sintesi, risposta e recupero del contesto — tutto dalla stessa interfaccia.</p>
+        <img src="Copiloto.png" alt="" class="mascot mascot-small reveal">
     </section>
 
 
@@ -838,6 +884,7 @@
         <div class="section-number reveal" style="color:rgba(237,125,49,0.12);">02</div>
         <h2 class="section-title reveal">Supporto decisionale<br>con <span class="accent-orange">Work IQ</span></h2>
         <p class="section-desc reveal">Collegare dati, attività e persone per avere insight immediati su progetti e priorità.</p>
+        <img src="Copiloto.png" alt="" class="mascot mascot-small reveal">
     </section>
 
 
@@ -898,7 +945,7 @@
                 <p>▪ <strong style="color:var(--accent-blue);">3 task in ritardo</strong> sul progetto Alpha</p>
                 <p>▪ Un fornitore che <strong style="color:var(--accent-orange);">non ha risposto da 7 giorni</strong></p>
                 <p>▪ Un membro del team con <strong style="color:var(--accent-green);">disponibilità</strong> per supportare</p>
-                <p class="copilot-action"><strong>Copilot suggerisce:</strong> "Riassegna il task di integrazione a Marco (disponibile questa settimana) e invia un sollecito al fornitore con le condizioni contrattuali allegate."</p>
+                <p class="copilot-action" style="display:flex; align-items:center; gap:0.75rem;"><img src="Copiloto.png" alt="Copiloto" class="mascot mascot-medium"><span><strong>Copilot suggerisce:</strong> "Riassegna il task di integrazione a Marco (disponibile questa settimana) e invia un sollecito al fornitore con le condizioni contrattuali allegate."</span></p>
             </div>
         </div>
     </section>
@@ -912,6 +959,7 @@
         <div class="section-number reveal" style="color:rgba(185,143,221,0.12);">03</div>
         <h2 class="section-title reveal">Automazione dei<br>processi ricorrenti</h2>
         <p class="section-desc reveal">Procurement, follow-up, reporting: Copilot suggerisce azioni e abilita workflow automatizzati integrati con M365.</p>
+        <img src="Copiloto.png" alt="" class="mascot mascot-small reveal">
     </section>
 
 
@@ -1106,6 +1154,7 @@
         <h2 class="thankyou-text reveal">THANK YOU</h2>
         <p class="thankyou-sub reveal">Lavorare meglio, non di più.</p>
         <p class="thankyou-meta reveal">Cluster Reply · Microsoft 365 Copilot & Work IQ</p>
+        <img src="Copiloto.png" alt="Copiloto mascot" class="mascot mascot-large reveal" style="bottom:8%; right:8%;">
     </section>
 
 
