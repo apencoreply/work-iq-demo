@@ -10,33 +10,40 @@
            CSS CUSTOM PROPERTIES — REPLY TEMPLATE WHITE
            =========================================== */
         :root {
-            /* Backgrounds */
-            --bg-primary: #ffffff;
-            --bg-secondary: #f5f5f5;
-            --bg-dark: #1a1a1a;
-            --bg-overlay-50: rgba(255, 255, 255, 0.5);
+            /* Backgrounds — Cluster Reply Dark Theme */
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-dark: #0a0c10;
+            --bg-card: #1c2030;
+            --bg-overlay-50: rgba(13, 17, 23, 0.5);
 
-            /* Text */
-            --text-primary: #1a1a1a;
-            --text-secondary: #555555;
-            --text-on-dark: #ffffff;
+            /* Text — Light on Dark */
+            --text-primary: #F0F1F5;
+            --text-secondary: #A8ABBE;
+            --text-on-dark: #F0F1F5;
+            --text-muted: #666688;
 
-            /* Reply Brand Colors */
-            --accent-apple-green: #76b82a;
-            --accent-dark-green: #2d6a2e;
-            --accent-bright-green: #8cc63f;
-            --accent-vivid-blue: #0072ce;
+            /* Cluster Reply Accent Colors */
+            --accent-blue: #5B9BD5;
+            --accent-orange: #ED7D31;
+            --accent-purple: #B98FDD;
+            --accent-deep-blue: #4562CE;
+            --accent-green: #10B981;
+            --accent-apple-green: #5B9BD5;
+            --accent-dark-green: #3a7bc8;
+            --accent-bright-green: #5B9BD5;
+            --accent-vivid-blue: #5B9BD5;
             --accent-deep-rose: #c4376b;
             --accent-light-rose: #e8768a;
-            --accent-amber: #f5a623;
+            --accent-amber: #ED7D31;
             --accent-turquoise: #00b4d8;
 
             /* Functional */
-            --bullet-color: var(--accent-bright-green);
-            --highlight-color: var(--accent-bright-green);
+            --bullet-color: var(--accent-blue);
+            --highlight-color: var(--accent-blue);
 
             /* Typography */
-            --font-display: 'Arial Black', 'Arial Bold', sans-serif;
+            --font-display: Arial, Helvetica, sans-serif;
             --font-body: Arial, Helvetica, sans-serif;
 
             /* Spacing */
@@ -62,6 +69,7 @@
             background: var(--bg-primary);
             color: var(--text-primary);
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* ===========================================
@@ -95,18 +103,18 @@
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: #ccc;
+            background: #3d4350;
             border: none;
             cursor: pointer;
             transition: background 0.3s, transform 0.3s;
             padding: 0;
         }
         .nav-dot.active {
-            background: var(--accent-apple-green);
+            background: var(--accent-blue);
             transform: scale(1.3);
         }
         .nav-dot:hover {
-            background: var(--accent-dark-green);
+            background: var(--accent-blue);
         }
 
         /* ===========================================
@@ -163,7 +171,7 @@
            COVER SLIDE
            =========================================== */
         .slide-cover {
-            background: linear-gradient(135deg, var(--accent-dark-green) 0%, var(--accent-apple-green) 50%, var(--accent-bright-green) 100%);
+            background: var(--bg-dark);
             justify-content: flex-end;
             padding-bottom: 10vh;
         }
@@ -171,6 +179,7 @@
         .cover-title {
             font-family: var(--font-display);
             font-size: clamp(2.5rem, 5vw, 3.75rem);
+            font-weight: bold;
             text-transform: uppercase;
             color: var(--text-on-dark);
             line-height: 1.1;
@@ -179,12 +188,12 @@
         .cover-subtitle {
             font-family: var(--font-body);
             font-size: clamp(0.875rem, 1.5vw, 1.125rem);
-            color: rgba(255, 255, 255, 0.85);
+            color: var(--accent-blue);
         }
         .cover-date {
             font-family: var(--font-body);
             font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--text-secondary);
             margin-top: 0.5rem;
         }
 
@@ -194,6 +203,7 @@
         .slide-agenda { background: var(--bg-primary); }
         .slide-title {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: clamp(1.5rem, 3vw, 2rem);
             text-transform: uppercase;
             color: var(--text-primary);
@@ -202,6 +212,7 @@
         }
         .slide-subtitle {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: clamp(0.75rem, 1.2vw, 1rem);
             text-transform: uppercase;
             color: var(--text-secondary);
@@ -218,15 +229,17 @@
             font-family: var(--font-body);
             font-size: clamp(1rem, 1.5vw, 1.25rem);
             padding: 0.75rem 0;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
             display: flex;
             align-items: center;
             gap: 1.5rem;
+            color: var(--text-secondary);
         }
         .agenda-number {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: 1.5em;
-            color: var(--accent-apple-green);
+            color: var(--accent-blue);
             min-width: 2rem;
             text-align: center;
         }
@@ -235,15 +248,16 @@
            SECTION DIVIDER
            =========================================== */
         .slide-section {
-            background: var(--bg-primary);
+            background: var(--bg-dark);
             text-align: center;
             justify-content: center;
         }
         .section-phrase {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: clamp(1.5rem, 3vw, 2.5rem);
             text-transform: uppercase;
-            color: var(--accent-apple-green);
+            color: var(--accent-blue);
         }
         .section-impact {
             font-family: var(--font-body);
@@ -264,12 +278,13 @@
         }
         .statement-text {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: clamp(1.8rem, 3.5vw, 3rem);
             text-transform: uppercase;
             line-height: 1.3;
             color: var(--text-on-dark);
         }
-        .statement-text .green { color: var(--accent-apple-green); }
+        .statement-text .green { color: var(--accent-blue); }
 
         /* ===========================================
            SINGLE COLUMN TEXT
@@ -352,24 +367,24 @@
             flex-shrink: 0;
         }
         .badge-red { background: #ef4444; }
-        .badge-yellow { background: #f59e0b; }
-        .badge-purple { background: #8b5cf6; }
-        .badge-green { background: var(--accent-apple-green); }
+        .badge-yellow { background: var(--accent-orange); }
+        .badge-purple { background: var(--accent-purple); }
+        .badge-green { background: var(--accent-green); }
 
         .response-box {
-            background: var(--bg-secondary);
+            background: var(--bg-card);
             border-radius: 8px;
             padding: 1.2rem;
             font-size: clamp(0.8rem, 1.1vw, 0.95rem);
             line-height: 1.5;
-            color: var(--text-primary);
-            border-left: 3px solid #ccc;
+            color: var(--text-secondary);
+            border-left: 3px solid #3d4350;
             margin-top: 0.5rem;
         }
         .response-box.red-border { border-left-color: #ef4444; }
-        .response-box.yellow-border { border-left-color: #f59e0b; }
-        .response-box.purple-border { border-left-color: #8b5cf6; }
-        .response-box.green-border { border-left-color: var(--accent-apple-green); }
+        .response-box.yellow-border { border-left-color: var(--accent-orange); }
+        .response-box.purple-border { border-left-color: var(--accent-purple); }
+        .response-box.green-border { border-left-color: var(--accent-green); }
 
         .response-verdict {
             margin-top: 0.75rem;
@@ -378,9 +393,9 @@
             text-transform: uppercase;
         }
         .verdict-fail { color: #ef4444; }
-        .verdict-partial { color: #f59e0b; }
-        .verdict-good { color: #8b5cf6; }
-        .verdict-great { color: var(--accent-apple-green); }
+        .verdict-partial { color: var(--accent-orange); }
+        .verdict-good { color: var(--accent-purple); }
+        .verdict-great { color: var(--accent-green); }
 
         /* ===========================================
            TABLE SLIDE
@@ -394,10 +409,11 @@
             font-family: var(--font-body);
         }
         .reply-table thead th {
-            background: var(--accent-apple-green);
+            background: var(--accent-blue);
             color: white;
             text-transform: uppercase;
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: 0.8rem;
             padding: 0.75rem 1rem;
             text-align: left;
@@ -407,8 +423,9 @@
         }
         .reply-table tbody td {
             padding: 0.75rem 1rem;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
             font-size: 0.9rem;
+            color: var(--text-secondary);
         }
         .reply-table .emoji { font-size: 1.1rem; }
 
@@ -416,17 +433,18 @@
            ACTION SLIDE (Prompt 3 highlight)
            =========================================== */
         .action-card {
-            background: var(--bg-secondary);
+            background: var(--bg-card);
             border-radius: 12px;
             padding: 2rem;
             max-width: 700px;
             margin: 1rem auto;
-            border-left: 4px solid var(--accent-apple-green);
+            border-left: 4px solid var(--accent-blue);
         }
         .action-card .email-to {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: 1rem;
-            color: var(--accent-apple-green);
+            color: var(--accent-blue);
             margin-bottom: 0.5rem;
         }
         .action-card .email-subject {
@@ -435,22 +453,23 @@
             margin-bottom: 1rem;
         }
         .action-card blockquote {
-            background: white;
-            border-left: 3px solid var(--accent-bright-green);
+            background: var(--bg-secondary);
+            border-left: 3px solid var(--accent-blue);
             padding: 1rem 1.25rem;
             border-radius: 6px;
             font-size: 0.95rem;
             line-height: 1.6;
-            color: var(--text-primary);
+            color: var(--text-secondary);
         }
         .action-card .success-badge {
             margin-top: 1rem;
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            background: #ecfdf5;
-            color: var(--accent-dark-green);
+            background: rgba(16,185,129,0.15);
+            color: var(--accent-green);
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: 0.85rem;
             padding: 0.4rem 1rem;
             border-radius: 20px;
@@ -470,16 +489,18 @@
             .pillars-grid { grid-template-columns: 1fr 1fr; }
         }
         .pillar-card {
-            background: var(--bg-secondary);
+            background: var(--bg-card);
             border-radius: 10px;
             padding: 1.5rem;
             text-align: center;
-            border-top: 3px solid #ccc;
+            border-top: 3px solid #3d4350;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-top: 3px solid #3d4350;
         }
         .pillar-card.red { border-top-color: #ef4444; }
-        .pillar-card.yellow { border-top-color: #f59e0b; }
-        .pillar-card.purple { border-top-color: #8b5cf6; }
-        .pillar-card.green { border-top-color: var(--accent-apple-green); }
+        .pillar-card.yellow { border-top-color: var(--accent-orange); }
+        .pillar-card.purple { border-top-color: var(--accent-purple); }
+        .pillar-card.green { border-top-color: var(--accent-green); }
 
         .pillar-card .pillar-number {
             font-family: var(--font-display);
@@ -519,26 +540,28 @@
             .messages-grid { grid-template-columns: 1fr; }
         }
         .msg-card {
-            background: var(--bg-secondary);
+            background: var(--bg-card);
             border-radius: 8px;
             padding: 1.25rem;
+            border: 1px solid rgba(255,255,255,0.06);
         }
         .msg-card .msg-label {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: 0.7rem;
             text-transform: uppercase;
-            color: var(--accent-apple-green);
+            color: var(--accent-blue);
             margin-bottom: 0.25rem;
         }
         .msg-card .msg-text {
             font-size: 0.9rem;
             line-height: 1.5;
-            color: var(--text-primary);
+            color: var(--text-secondary);
         }
         .msg-card .msg-quote {
             font-style: italic;
             font-size: 0.85rem;
-            color: var(--text-secondary);
+            color: var(--text-muted);
             margin-top: 0.5rem;
         }
 
@@ -546,7 +569,7 @@
            THANK YOU SLIDE
            =========================================== */
         .slide-thankyou {
-            background: linear-gradient(135deg, var(--accent-dark-green), var(--accent-apple-green));
+            background: var(--bg-dark);
             text-align: center;
             justify-content: center;
         }
@@ -559,7 +582,7 @@
         .thankyou-url {
             font-family: var(--font-body);
             font-size: 1.125rem;
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--accent-blue);
             margin-top: 1rem;
         }
 

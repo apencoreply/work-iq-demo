@@ -10,31 +10,37 @@
            CSS CUSTOM PROPERTIES — REPLY TEMPLATE WHITE
            =========================================== */
         :root {
-            /* Backgrounds */
-            --bg-primary: #ffffff;
-            --bg-secondary: #f5f5f5;
-            --bg-dark: #1a1a1a;
+            /* Backgrounds — Cluster Reply Dark Theme */
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-dark: #0a0c10;
+            --bg-card: #1c2030;
 
-            /* Text */
-            --text-primary: #1a1a1a;
-            --text-secondary: #555555;
-            --text-on-dark: #ffffff;
+            /* Text — Light on Dark */
+            --text-primary: #F0F1F5;
+            --text-secondary: #A8ABBE;
+            --text-on-dark: #F0F1F5;
+            --text-muted: #666688;
 
-            /* Reply Brand Colors */
-            --accent-apple-green: #76b82a;
-            --accent-dark-green: #2d6a2e;
-            --accent-bright-green: #8cc63f;
-            --accent-vivid-blue: #0072ce;
+            /* Cluster Reply Accent Colors */
+            --accent-blue: #5B9BD5;
+            --accent-orange: #ED7D31;
+            --accent-purple: #B98FDD;
+            --accent-green: #10B981;
+            --accent-apple-green: #5B9BD5;
+            --accent-dark-green: #3a7bc8;
+            --accent-bright-green: #5B9BD5;
+            --accent-vivid-blue: #5B9BD5;
             --accent-deep-rose: #c4376b;
-            --accent-amber: #f5a623;
+            --accent-amber: #ED7D31;
             --accent-turquoise: #00b4d8;
 
             /* Functional */
-            --bullet-color: var(--accent-bright-green);
-            --highlight-color: var(--accent-bright-green);
+            --bullet-color: var(--accent-blue);
+            --highlight-color: var(--accent-blue);
 
             /* Typography */
-            --font-display: 'Arial Black', 'Arial Bold', sans-serif;
+            --font-display: Arial, Helvetica, sans-serif;
             --font-body: Arial, Helvetica, sans-serif;
 
             /* Spacing */
@@ -60,6 +66,7 @@
             background: var(--bg-primary);
             color: var(--text-primary);
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* ===========================================
@@ -128,17 +135,17 @@
         .nav-dot {
             width: 10px; height: 10px;
             border-radius: 50%;
-            background: #ccc;
+            background: #3d4350;
             border: none;
             cursor: pointer;
             transition: background 0.3s, transform 0.3s;
             padding: 0;
         }
         .nav-dot.active {
-            background: var(--accent-apple-green);
+            background: var(--accent-blue);
             transform: scale(1.3);
         }
-        .nav-dot:hover { background: var(--accent-dark-green); }
+        .nav-dot:hover { background: var(--accent-blue); }
 
         /* ===========================================
            SLIDE COUNTER
@@ -156,13 +163,14 @@
            COVER SLIDE
            =========================================== */
         .slide-cover {
-            background: linear-gradient(135deg, var(--accent-dark-green) 0%, var(--accent-apple-green) 50%, var(--accent-bright-green) 100%);
+            background: var(--bg-dark);
             justify-content: flex-end;
             padding-bottom: 10vh;
         }
         .cover-content { max-width: 75%; }
         .cover-title {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: clamp(2.2rem, 4.5vw, 3.5rem);
             text-transform: uppercase;
             color: var(--text-on-dark);
@@ -172,12 +180,12 @@
         .cover-subtitle {
             font-family: var(--font-body);
             font-size: clamp(0.875rem, 1.5vw, 1.125rem);
-            color: rgba(255,255,255,0.85);
+            color: var(--accent-blue);
         }
         .cover-badge {
             display: inline-block;
-            background: rgba(255,255,255,0.2);
-            color: var(--text-on-dark);
+            background: rgba(91,155,213,0.2);
+            color: var(--accent-blue);
             font-size: 0.75rem;
             padding: 4px 12px;
             border-radius: 20px;
@@ -190,14 +198,15 @@
            SECTION DIVIDER
            =========================================== */
         .slide-section {
-            background: var(--bg-primary);
+            background: var(--bg-dark);
             text-align: center;
         }
         .section-phrase {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: clamp(1.5rem, 3vw, 2.5rem);
             text-transform: uppercase;
-            color: var(--accent-apple-green);
+            color: var(--accent-blue);
         }
         .section-impact {
             font-family: var(--font-body);
@@ -217,6 +226,7 @@
            =========================================== */
         .slide-title {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: clamp(1.4rem, 2.5vw, 1.8rem);
             text-transform: uppercase;
             color: var(--text-primary);
@@ -225,6 +235,7 @@
         }
         .slide-subtitle {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: clamp(0.7rem, 1.1vw, 0.9rem);
             text-transform: uppercase;
             color: var(--text-secondary);
@@ -296,8 +307,8 @@
             margin: 1.5rem auto;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-            border: 1px solid #e0e0e0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.06);
         }
         .screenshot-container img {
             width: 100%;
@@ -321,8 +332,8 @@
             margin: 1.5rem auto;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-            border: 1px solid #e0e0e0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.06);
             background: #000;
         }
         .video-container video {
@@ -330,11 +341,12 @@
             display: block;
         }
         .video-label {
-            background: var(--accent-apple-green);
+            background: var(--accent-blue);
             color: white;
             padding: 0.5rem 1rem;
             font-size: 0.8rem;
             font-family: var(--font-display);
+            font-weight: bold;
             text-transform: uppercase;
             display: flex;
             align-items: center;
@@ -361,15 +373,17 @@
             font-family: var(--font-body);
             font-size: clamp(0.95rem, 1.4vw, 1.15rem);
             padding: 0.85rem 0;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
             display: flex;
             align-items: center;
             gap: 1.5rem;
+            color: var(--text-secondary);
         }
         .agenda-number {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: 1.5em;
-            color: var(--accent-apple-green);
+            color: var(--accent-blue);
             min-width: 2rem;
             text-align: center;
         }
@@ -387,10 +401,11 @@
             margin-right: auto;
         }
         .reply-table thead th {
-            background: var(--accent-apple-green);
+            background: var(--accent-blue);
             color: white;
             text-transform: uppercase;
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: 0.78rem;
             padding: 0.65rem 0.8rem;
             text-align: left;
@@ -398,8 +413,9 @@
         .reply-table tbody tr:nth-child(even) { background: var(--bg-secondary); }
         .reply-table tbody td {
             padding: 0.6rem 0.8rem;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
             font-size: 0.85rem;
+            color: var(--text-secondary);
         }
         .reply-table .tag {
             display: inline-block;
@@ -408,9 +424,9 @@
             font-size: 0.75rem;
             font-weight: 600;
         }
-        .tag-prompt { background: #e8f5e9; color: #2d6a2e; }
-        .tag-tool { background: #e3f2fd; color: #0072ce; }
-        .tag-demo { background: #fff8e1; color: #e65100; }
+        .tag-prompt { background: rgba(91,155,213,0.15); color: #5B9BD5; }
+        .tag-tool { background: rgba(69,98,206,0.15); color: #4562CE; }
+        .tag-demo { background: rgba(237,125,49,0.15); color: #ED7D31; }
 
         /* ===========================================
            STATEMENT SLIDE
@@ -420,13 +436,14 @@
         }
         .statement-text {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: clamp(1.8rem, 3.5vw, 3rem);
             text-transform: uppercase;
             line-height: 1.25;
             color: var(--text-primary);
         }
         .statement-highlight {
-            color: var(--accent-apple-green);
+            color: var(--accent-blue);
         }
 
         /* ===========================================
@@ -442,8 +459,8 @@
             max-width: 900px;
         }
         .flow-step {
-            background: var(--bg-secondary);
-            border: 2px solid #e0e0e0;
+            background: var(--bg-card, #1c2030);
+            border: 2px solid rgba(255,255,255,0.08);
             border-radius: 10px;
             padding: 1rem 1.2rem;
             text-align: center;
@@ -451,12 +468,13 @@
             transition: border-color 0.3s, transform 0.3s;
         }
         .flow-step:hover {
-            border-color: var(--accent-apple-green);
+            border-color: var(--accent-blue);
             transform: translateY(-3px);
         }
         .flow-step .step-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
         .flow-step .step-label {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: 0.7rem;
             text-transform: uppercase;
             color: var(--text-primary);
@@ -468,7 +486,7 @@
         }
         .flow-arrow {
             font-size: 1.5rem;
-            color: var(--accent-apple-green);
+            color: var(--accent-blue);
             padding: 0 0.3rem;
         }
 
@@ -503,21 +521,22 @@
             margin: 2rem auto;
         }
         .kpi-card {
-            background: var(--bg-secondary);
+            background: var(--bg-card, #1c2030);
             border-radius: 10px;
             padding: 1.5rem;
             text-align: center;
-            border: 1px solid #e0e0e0;
+            border: 1px solid rgba(255,255,255,0.06);
             transition: transform 0.3s, box-shadow 0.3s;
         }
         .kpi-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
         .kpi-value {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: 2.2rem;
-            color: var(--accent-apple-green);
+            color: var(--accent-blue);
             line-height: 1;
         }
         .kpi-label {
@@ -543,11 +562,12 @@
            THANK YOU
            =========================================== */
         .slide-thankyou {
-            background: linear-gradient(135deg, var(--accent-dark-green), var(--accent-apple-green));
+            background: var(--bg-dark);
             text-align: center;
         }
         .thankyou-text {
             font-family: var(--font-display);
+            font-weight: bold;
             font-size: clamp(3rem, 6vw, 5rem);
             color: var(--text-on-dark);
             text-transform: uppercase;
@@ -555,7 +575,7 @@
         .thankyou-url {
             font-family: var(--font-body);
             font-size: 1.125rem;
-            color: rgba(255,255,255,0.8);
+            color: var(--accent-blue);
             margin-top: 1rem;
         }
 
@@ -776,7 +796,7 @@
         <div class="text-panel">
             <p class="text-evidence reveal">MODEL CONTEXT PROTOCOL</p>
             <h2 class="slide-title reveal" style="text-align: left;">WORK IQ COPILOT (PREVIEW)</h2>
-            <p class="body-text reveal">Server MCP che espone il tool <code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:0.9em;">copilot_chat</code> per interrogare Microsoft 365:</p>
+            <p class="body-text reveal">Server MCP che espone il tool <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.9em;">copilot_chat</code> per interrogare Microsoft 365:</p>
             <ul class="bullet-list reveal">
                 <li>Ricerca semantica su documenti, email, chat, siti</li>
                 <li>Accesso a OneDrive, SharePoint, Teams, Mail</li>
@@ -958,7 +978,7 @@
                 <li><strong>Customer_Data_Risk_Assessment.docx</strong><br>
                     <span style="color:var(--text-secondary);font-size:0.85rem;">Risk analysis — CRM/ERP sync failures, ownership gaps</span></li>
             </ul>
-            <p class="body-text reveal" style="margin-top: 1rem; padding: 0.8rem; background: #fff8e1; border-radius: 6px; font-size: 0.85rem; border-left: 3px solid var(--accent-amber);">
+            <p class="body-text reveal" style="margin-top: 1rem; padding: 0.8rem; background: rgba(237,125,49,0.1); border-radius: 6px; font-size: 0.85rem; border-left: 3px solid var(--accent-amber);">
                 ⚠️ <strong>Temi emergenti:</strong> governance già discussa, rischi ERP sync, stakeholder Sales Ops/IT/Data Governance già identificati
             </p>
         </div>
@@ -1058,7 +1078,7 @@
         <div class="text-panel">
             <p class="text-evidence reveal">KNOWLEDGE BASE</p>
             <h2 class="slide-title reveal" style="text-align: left;">DOCUMENTI SORGENTE</h2>
-            <p class="body-text reveal">I documenti nella cartella OneDrive <code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:0.9em;">KnowledgeBase</code> costituiscono il corpus su cui il tool copilot_chat esegue la ricerca semantica:</p>
+            <p class="body-text reveal">I documenti nella cartella OneDrive <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.9em;">KnowledgeBase</code> costituiscono il corpus su cui il tool copilot_chat esegue la ricerca semantica:</p>
             <ul class="bullet-list reveal">
                 <li><strong>Customer Master Cleanup Initiative</strong> — Piano strategico per la pulizia dati CRM</li>
                 <li><strong>CRM Data Quality Meeting Notes</strong> — Verbali riunioni stakeholder</li>
@@ -1082,9 +1102,9 @@
             <h2 class="slide-title reveal" style="text-align: left;">TOPICS EDITOR</h2>
             <p class="body-text reveal">Il topic <strong>"New project request"</strong> definisce il flusso di raccolta dati con nodi Question per ogni campo:</p>
             <ul class="bullet-list reveal">
-                <li>Urgency → <code style="background:#f0f0f0;padding:2px 4px;border-radius:3px;font-size:0.85em;">Global.varUrgency</code></li>
-                <li>Expected Effort → <code style="background:#f0f0f0;padding:2px 4px;border-radius:3px;font-size:0.85em;">Global.varEffort</code></li>
-                <li>Deadline → <code style="background:#f0f0f0;padding:2px 4px;border-radius:3px;font-size:0.85em;">Global.varDeadline</code></li>
+                <li>Urgency → <code style="background:rgba(255,255,255,0.08);padding:2px 4px;border-radius:3px;font-size:0.85em;">Global.varUrgency</code></li>
+                <li>Expected Effort → <code style="background:rgba(255,255,255,0.08);padding:2px 4px;border-radius:3px;font-size:0.85em;">Global.varEffort</code></li>
+                <li>Deadline → <code style="background:rgba(255,255,255,0.08);padding:2px 4px;border-radius:3px;font-size:0.85em;">Global.varDeadline</code></li>
             </ul>
             <p class="body-text reveal" style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
                 Ogni variabile globale viene poi passata al flusso Power Automate per la generazione del OnePager.
