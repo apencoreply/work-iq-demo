@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copilot e Work IQ — Cluster Reply</title>
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — CLUSTER REPLY EVENTO
+           Dark theme with blue/orange/purple accents
+           Extracted from Cluster Reply_EVENTO_Template.pptx
+           =========================================== */
+        :root {
+            /* Backgrounds */
+            --bg-primary: #0D0F17;
+            --bg-card: #151829;
+            --bg-card-hover: #1C2038;
+            --bg-surface: #111322;
+
+            /* Text — from PPTX: F0F1F5, A8ABBE, 666688 */
+            --text-primary: #F0F1F5;
+            --text-secondary: #A8ABBE;
+            --text-muted: #666688;
+
+            /* Cluster Reply Accents — from PPTX */
+            --accent-blue: #5B9BD5;
+            --accent-deep-blue: #4562CE;
+            --accent-orange: #ED7D31;
+            --accent-purple: #B98FDD;
+            --accent-green: #10B981;
+
+            /* Typography — Arial as in the PPTX */
+            --font-display: Arial, Helvetica, sans-serif;
+            --font-body: Arial, Helvetica, sans-serif;
+
+            /* Spacing */
+            --slide-padding: clamp(2.5rem, 6vw, 5rem);
+
+            /* Animation */
+            --ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
+            --duration: 0.4s;
+        }
+
+        /* ===========================================
+           BASE STYLES
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* ===========================================
+           SLIDE CONTAINER
+           =========================================== */
+        .slide {
+            min-height: 100vh;
+            padding: var(--slide-padding);
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-primary);
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity var(--duration) var(--ease-out),
+                        transform var(--duration) var(--ease-out);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+        .reveal:nth-child(7) { transition-delay: 0.7s; }
+        .reveal:nth-child(8) { transition-delay: 0.8s; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { transition: opacity 0.3s ease; transform: none; }
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        #progressBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            z-index: 1000;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        /* ===========================================
+           NAVIGATION DOTS
+           =========================================== */
+        #navDots {
+            position: fixed;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 999;
+        }
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+            padding: 0;
+        }
+        .nav-dot.active {
+            background: var(--accent-blue);
+            transform: scale(1.4);
+        }
+        .nav-dot:hover { background: var(--accent-purple); }
+
+        /* ===========================================
+           SLIDE COUNTER
+           =========================================== */
+        #slideCounter {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            z-index: 999;
+        }
+
+        /* ===========================================
+           KEYBOARD HINT
+           =========================================== */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            z-index: 999;
+            opacity: 0.6;
+        }
+
+        /* ===========================================
+           COMMON ELEMENTS
+           =========================================== */
+
+        /* Badge label — small uppercase colored tag */
+        .badge {
+            display: inline-block;
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            padding: 0.3rem 0.9rem;
+            border-radius: 4px;
+            margin-bottom: 1.25rem;
+        }
+        .badge-blue { background: rgba(91,155,213,0.15); color: var(--accent-blue); }
+        .badge-orange { background: rgba(237,125,49,0.15); color: var(--accent-orange); }
+        .badge-purple { background: rgba(185,143,221,0.15); color: var(--accent-purple); }
+        .badge-green { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+
+        /* Slide title */
+        .slide-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            line-height: 1.15;
+        }
+
+        /* Slide subtitle */
+        .slide-subtitle {
+            font-family: var(--font-body);
+            font-size: clamp(0.95rem, 1.5vw, 1.2rem);
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 700px;
+        }
+
+        /* Body text */
+        .body-text {
+            font-family: var(--font-body);
+            font-size: clamp(0.875rem, 1.2vw, 1rem);
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Bullet list */
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 0.75rem 0;
+        }
+        .bullet-list li {
+            font-family: var(--font-body);
+            font-size: clamp(0.85rem, 1.1vw, 0.95rem);
+            color: var(--text-secondary);
+            line-height: 1.7;
+            padding-left: 1.4em;
+            position: relative;
+            margin-bottom: 0.4rem;
+        }
+        .bullet-list li::before {
+            content: '▪';
+            color: var(--accent-blue);
+            font-size: 120%;
+            position: absolute;
+            left: 0;
+        }
+        .bullet-list.orange li::before { color: var(--accent-orange); }
+        .bullet-list.purple li::before { color: var(--accent-purple); }
+        .bullet-list.green li::before { color: var(--accent-green); }
+
+        /* Accent text inline */
+        .accent-blue { color: var(--accent-blue); }
+        .accent-orange { color: var(--accent-orange); }
+        .accent-purple { color: var(--accent-purple); }
+        .accent-green { color: var(--accent-green); }
+
+        /* ===========================================
+           COVER SLIDE
+           =========================================== */
+        .slide-cover {
+            justify-content: flex-end;
+            padding-bottom: 8vh;
+        }
+        .cover-company {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 4.5vw, 3.5rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+        }
+        .cover-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 1rem;
+        }
+        .cover-title .blue { color: var(--accent-blue); }
+        .cover-title .white { color: var(--text-primary); }
+        .cover-meta {
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 1.5rem;
+        }
+        .cover-line {
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 2px;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ===========================================
+           SECTION DIVIDER
+           =========================================== */
+        .slide-section {
+            text-align: center;
+            justify-content: center;
+        }
+        .section-number {
+            font-family: var(--font-display);
+            font-size: clamp(4rem, 8vw, 7rem);
+            font-weight: 700;
+            color: rgba(91,155,213,0.12);
+            line-height: 1;
+            margin-bottom: -1rem;
+        }
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        .section-desc {
+            font-family: var(--font-body);
+            font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ===========================================
+           STATEMENT SLIDE
+           =========================================== */
+        .slide-statement {
+            text-align: center;
+            justify-content: center;
+        }
+        .stat-big {
+            font-family: var(--font-display);
+            font-size: clamp(5rem, 10vw, 9rem);
+            font-weight: 700;
+            color: var(--accent-blue);
+            line-height: 1;
+        }
+        .statement-text {
+            font-family: var(--font-display);
+            font-size: clamp(1.3rem, 2.5vw, 2rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .statement-sub {
+            font-family: var(--font-body);
+            font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+            color: var(--text-secondary);
+            margin-top: 1.25rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        /* ===========================================
+           CARDS
+           =========================================== */
+        .cards-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .cards-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .cards-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        @media (max-width: 768px) {
+            .cards-grid.cols-2,
+            .cards-grid.cols-3 { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.75rem;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.3s var(--ease-out), border-color 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(91,155,213,0.2);
+        }
+        .card-accent-top { border-top: 3px solid var(--accent-blue); }
+        .card-accent-top.orange { border-top-color: var(--accent-orange); }
+        .card-accent-top.purple { border-top-color: var(--accent-purple); }
+        .card-accent-top.green { border-top-color: var(--accent-green); }
+
+        .card-label {
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+        .card-label.orange { color: var(--accent-orange); }
+        .card-label.purple { color: var(--accent-purple); }
+        .card-label.green { color: var(--accent-green); }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-size: clamp(1rem, 1.5vw, 1.2rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .card-body {
+            font-family: var(--font-body);
+            font-size: clamp(0.8rem, 1vw, 0.9rem);
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* ===========================================
+           TABLE (dark theme)
+           =========================================== */
+        .dark-table {
+            width: 100%;
+            max-width: 900px;
+            margin: 1.5rem auto;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-family: var(--font-body);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .dark-table thead th {
+            background: var(--bg-card);
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 1rem 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .dark-table tbody tr {
+            transition: background 0.2s;
+        }
+        .dark-table tbody tr:hover {
+            background: var(--bg-card-hover);
+        }
+        .dark-table tbody td {
+            padding: 0.9rem 1.25rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .dark-table tbody td:first-child {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        /* ===========================================
+           SCENARIO / QUOTE BLOCK
+           =========================================== */
+        .scenario-block {
+            background: var(--bg-card);
+            border-left: 3px solid var(--accent-blue);
+            padding: 1.5rem 2rem;
+            border-radius: 0 12px 12px 0;
+            max-width: 800px;
+            margin: 1rem auto;
+        }
+        .scenario-block p {
+            font-size: clamp(0.85rem, 1.1vw, 0.95rem);
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 0.4rem;
+        }
+        .scenario-block .scenario-label {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+        .scenario-block .copilot-action {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            color: var(--accent-blue);
+            font-style: italic;
+        }
+        .scenario-block .copilot-action strong {
+            color: var(--accent-purple);
+            font-style: normal;
+        }
+
+        /* ===========================================
+           FLOW DIAGRAM
+           =========================================== */
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            flex-wrap: wrap;
+            margin: 2.5rem auto;
+            max-width: 900px;
+        }
+        .flow-step {
+            background: var(--bg-card);
+            border: 1px solid rgba(91,155,213,0.3);
+            color: var(--text-primary);
+            font-family: var(--font-display);
+            font-size: clamp(0.7rem, 1vw, 0.85rem);
+            font-weight: 700;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .flow-step.active {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-color: transparent;
+        }
+        .flow-arrow {
+            font-size: 1.25rem;
+            color: var(--accent-blue);
+            padding: 0 0.6rem;
+        }
+
+        /* ===========================================
+           ECOSYSTEM GRID (M365)
+           =========================================== */
+        .eco-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.25rem;
+            max-width: 900px;
+            margin: 2rem auto;
+        }
+        @media (max-width: 768px) {
+            .eco-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .eco-card {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.3s var(--ease-out), border-color 0.3s;
+        }
+        .eco-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(91,155,213,0.25);
+        }
+        .eco-icon { font-size: 1.75rem; margin-bottom: 0.6rem; }
+        .eco-name {
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .eco-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* ===========================================
+           IMPACT BARS (animated)
+           =========================================== */
+        .impact-bars { max-width: 700px; margin: 2rem auto; }
+        .impact-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+        .impact-label {
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            min-width: 130px;
+            text-align: right;
+            color: var(--text-primary);
+        }
+        .impact-bar-bg {
+            flex: 1;
+            height: 36px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .impact-bar-fill {
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 0.75rem;
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: white;
+            width: 0%;
+            transition: width 1.2s var(--ease-out);
+        }
+        .bar-blue { background: linear-gradient(90deg, var(--accent-deep-blue), var(--accent-blue)); }
+        .bar-purple { background: linear-gradient(90deg, #7C5BAD, var(--accent-purple)); }
+        .bar-orange { background: linear-gradient(90deg, #C4601A, var(--accent-orange)); }
+        .bar-green { background: linear-gradient(90deg, #0D8A5E, var(--accent-green)); }
+
+        /* ===========================================
+           KEY MESSAGES
+           =========================================== */
+        .key-messages { max-width: 800px; margin: 2rem auto; }
+        .key-message {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+        }
+        .key-num {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+            min-width: 2.5rem;
+        }
+        .key-body h3 {
+            font-family: var(--font-display);
+            font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+        .key-body p {
+            font-family: var(--font-body);
+            font-size: clamp(0.85rem, 1.1vw, 0.95rem);
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* ===========================================
+           THANK YOU SLIDE
+           =========================================== */
+        .slide-thankyou {
+            text-align: center;
+            justify-content: center;
+        }
+        .thankyou-text {
+            font-family: var(--font-display);
+            font-size: clamp(3.5rem, 7vw, 6rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .thankyou-sub {
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+            font-style: italic;
+        }
+        .thankyou-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2rem;
+        }
+
+        /* ===========================================
+           MOBILE
+           =========================================== */
+        @media (max-width: 768px) {
+            #navDots, .keyboard-hint { display: none; }
+            .slide { padding: 1.5rem; }
+            .flow-row { flex-direction: column; gap: 0.5rem; }
+            .flow-arrow { transform: rotate(90deg); }
+        }
+
+        /* ===========================================
+           AMBIENT GLOW (subtle background decoration)
+           =========================================== */
+        .glow-blue {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(91,155,213,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .glow-purple {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(185,143,221,0.06) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Progress bar -->
+    <div id="progressBar"></div>
+
+    <!-- Navigation dots -->
+    <nav id="navDots" aria-label="Navigazione slide"></nav>
+
+    <!-- Slide counter -->
+    <div id="slideCounter"></div>
+
+    <!-- Keyboard hint -->
+    <div class="keyboard-hint">← → Frecce · Spazio · Scroll</div>
+
+
+    <!-- ==========================================
+         SLIDE 1 — COVER
+         ========================================== -->
+    <section class="slide slide-cover">
+        <div class="glow-blue" style="top:-100px; right:-100px;"></div>
+        <div class="glow-purple" style="bottom:10%; left:5%;"></div>
+        <div class="cover-line reveal"></div>
+        <div class="cover-company reveal">CLUSTER REPLY</div>
+        <div class="cover-title reveal">
+            <span class="white">Copilot e </span><span class="blue">Work IQ</span>
+        </div>
+        <p class="slide-subtitle reveal" style="max-width:600px;">Trasformare il modo di lavorare con l'AI integrata in Microsoft 365</p>
+        <p class="cover-meta reveal">Milano · 2026</p>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 2 — AGENDA
+         ========================================== -->
+    <section class="slide">
+        <span class="badge badge-blue reveal">AGENDA</span>
+        <h2 class="slide-title reveal">Tre aree di trasformazione</h2>
+        <div class="cards-grid cols-3" style="margin-top:1.5rem;">
+            <div class="card card-accent-top reveal">
+                <div class="card-label">01</div>
+                <div class="card-title">Supporto ai processi operativi</div>
+                <div class="card-body">Sintesi, risposta e recupero del contesto su mail, offerte e richieste fornitori</div>
+            </div>
+            <div class="card card-accent-top orange reveal">
+                <div class="card-label orange">02</div>
+                <div class="card-title">Supporto decisionale</div>
+                <div class="card-body">Work IQ collega dati, attività e persone per insight immediati su progetti e priorità</div>
+            </div>
+            <div class="card card-accent-top purple reveal">
+                <div class="card-label purple">03</div>
+                <div class="card-title">Automazione processi ricorrenti</div>
+                <div class="card-body">Copilot suggerisce azioni e abilita workflow automatizzati integrati con M365</div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 3 — SECTION: PROCESSI OPERATIVI
+         ========================================== -->
+    <section class="slide slide-section">
+        <div class="glow-blue" style="top:20%; left:-100px;"></div>
+        <div class="section-number reveal">01</div>
+        <h2 class="section-title reveal">Supporto ai<br>processi operativi</h2>
+        <p class="section-desc reveal">Mail, offerte, richieste fornitori: sintesi, risposta e recupero del contesto — tutto dalla stessa interfaccia.</p>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 4 — STATEMENT: IL PROBLEMA
+         ========================================== -->
+    <section class="slide slide-statement">
+        <div class="stat-big reveal">60%</div>
+        <div class="statement-text reveal">del tempo dedicato<br>ad attività operative</div>
+        <p class="statement-sub reveal">Leggere e-mail, redigere offerte, gestire richieste verso fornitori. Il contesto è frammentato tra conversazioni, documenti e sistemi diversi.</p>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 5 — TABLE: COME COPILOT INTERVIENE
+         ========================================== -->
+    <section class="slide">
+        <span class="badge badge-blue reveal">COME INTERVIENE</span>
+        <h2 class="slide-title reveal">Tre capacità chiave di Copilot</h2>
+        <table class="dark-table reveal">
+            <thead>
+                <tr>
+                    <th style="width:30%">Scenario</th>
+                    <th>Cosa fa Copilot</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Sintesi e-mail e thread</td>
+                    <td>Riassume conversazioni lunghe, evidenzia decisioni prese e azioni pendenti</td>
+                </tr>
+                <tr>
+                    <td>Risposta contestuale</td>
+                    <td>Genera bozze di risposta coerenti con il tono, lo storico e i dati allegati</td>
+                </tr>
+                <tr>
+                    <td>Recupero del contesto</td>
+                    <td>Risale a documenti, messaggi e riunioni correlati per ricostruire la storia completa</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 6 — ESEMPI CONCRETI
+         ========================================== -->
+    <section class="slide">
+        <span class="badge badge-blue reveal">ESEMPI</span>
+        <h2 class="slide-title reveal">Copilot in azione</h2>
+        <div style="max-width:800px; margin-top:1rem;">
+            <div class="scenario-block reveal">
+                <p class="scenario-label">Mail da un cliente</p>
+                <p>Copilot sintetizza la richiesta, recupera l'offerta precedente da SharePoint e propone una bozza di risposta con i riferimenti corretti.</p>
+            </div>
+            <div class="scenario-block reveal" style="border-left-color: var(--accent-orange);">
+                <p class="scenario-label">Richiesta fornitore</p>
+                <p>Copilot individua le ultime condizioni negoziate nei thread Teams e le incorpora nella nuova comunicazione.</p>
+            </div>
+            <div class="scenario-block reveal" style="border-left-color: var(--accent-purple);">
+                <p class="scenario-label">Follow-up su un'offerta</p>
+                <p>Copilot identifica che un'offerta inviata 5 giorni fa non ha ricevuto risposta e suggerisce un messaggio di sollecito.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 7 — SECTION: SUPPORTO DECISIONALE
+         ========================================== -->
+    <section class="slide slide-section">
+        <div class="glow-purple" style="top:15%; right:-50px;"></div>
+        <div class="section-number reveal" style="color:rgba(237,125,49,0.12);">02</div>
+        <h2 class="section-title reveal">Supporto decisionale<br>con <span class="accent-orange">Work IQ</span></h2>
+        <p class="section-desc reveal">Collegare dati, attività e persone per avere insight immediati su progetti e priorità.</p>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 8 — STATEMENT: WORK IQ
+         ========================================== -->
+    <section class="slide slide-statement">
+        <div class="glow-blue" style="top:30%; left:10%;"></div>
+        <span class="badge badge-purple reveal">WORK IQ</span>
+        <div class="statement-text reveal" style="font-size: clamp(1.5rem, 3vw, 2.5rem);">Work IQ collega<br><span class="accent-blue">dati</span>, <span class="accent-orange">attività</span><br>e <span class="accent-purple">persone</span></div>
+        <p class="statement-sub reveal">Il layer di intelligenza di Microsoft 365 che fornisce insight immediati per decisioni migliori e più rapide.</p>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 9 — TRE PILASTRI DI WORK IQ
+         ========================================== -->
+    <section class="slide">
+        <span class="badge badge-orange reveal">I TRE PILASTRI</span>
+        <h2 class="slide-title reveal">La nuova intelligenza del lavoro</h2>
+        <div class="cards-grid cols-3">
+            <div class="card card-accent-top reveal">
+                <div class="card-label">VISIBILITÀ</div>
+                <div class="card-title">Visibilità sui progetti</div>
+                <ul class="bullet-list">
+                    <li>Stato di avanzamento aggregato da Planner, Loop, e-mail e Teams</li>
+                    <li>Segnalazione proattiva di blocchi, ritardi o dipendenze non risolte</li>
+                </ul>
+            </div>
+            <div class="card card-accent-top orange reveal">
+                <div class="card-label orange">PRIORITÀ</div>
+                <div class="card-title">Priorità intelligenti</div>
+                <ul class="bullet-list orange">
+                    <li>Classificazione automatica in base a urgenza, impatto e contesto relazionale</li>
+                    <li>Suggerimenti su dove concentrare l'attenzione</li>
+                </ul>
+            </div>
+            <div class="card card-accent-top purple reveal">
+                <div class="card-label purple">INSIGHT</div>
+                <div class="card-title">Insight su persone e team</div>
+                <ul class="bullet-list purple">
+                    <li>Chi sta lavorando su cosa, chi è sovraccarico, chi ha competenze specifiche</li>
+                    <li>Connessioni tra persone e progetti</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 10 — SCENARIO DECISIONALE
+         ========================================== -->
+    <section class="slide">
+        <span class="badge badge-purple reveal">SCENARIO</span>
+        <h2 class="slide-title reveal">Un project manager apre Work IQ</h2>
+        <div style="max-width:800px; margin-top:1rem;">
+            <div class="scenario-block reveal" style="border-left-color: var(--accent-purple);">
+                <p>▪ <strong style="color:var(--accent-blue);">3 task in ritardo</strong> sul progetto Alpha</p>
+                <p>▪ Un fornitore che <strong style="color:var(--accent-orange);">non ha risposto da 7 giorni</strong></p>
+                <p>▪ Un membro del team con <strong style="color:var(--accent-green);">disponibilità</strong> per supportare</p>
+                <p class="copilot-action"><strong>Copilot suggerisce:</strong> "Riassegna il task di integrazione a Marco (disponibile questa settimana) e invia un sollecito al fornitore con le condizioni contrattuali allegate."</p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 11 — SECTION: AUTOMAZIONE
+         ========================================== -->
+    <section class="slide slide-section">
+        <div class="glow-blue" style="bottom:20%; right:-80px;"></div>
+        <div class="section-number reveal" style="color:rgba(185,143,221,0.12);">03</div>
+        <h2 class="section-title reveal">Automazione dei<br>processi ricorrenti</h2>
+        <p class="section-desc reveal">Procurement, follow-up, reporting: Copilot suggerisce azioni e abilita workflow automatizzati integrati con M365.</p>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 12 — FLOW: IL CICLO
+         ========================================== -->
+    <section class="slide slide-statement">
+        <span class="badge badge-green reveal">WORKFLOW</span>
+        <div class="statement-text reveal" style="font-size: clamp(1.2rem, 2vw, 1.6rem); margin-bottom: 1rem;">Il ciclo dell'automazione</div>
+        <div class="flow-row reveal">
+            <div class="flow-step">Trigger</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Copilot analizza</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">Suggerisce azione</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step active">Esegue (con conferma)</div>
+        </div>
+        <p class="statement-sub reveal">Dall'evento scatenante all'esecuzione: Copilot orchestra ogni passaggio con supervisione umana.</p>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 13 — TABLE: PROCUREMENT
+         ========================================== -->
+    <section class="slide">
+        <span class="badge badge-orange reveal">PROCUREMENT</span>
+        <h2 class="slide-title reveal">Dall'acquisto al follow-up</h2>
+        <table class="dark-table reveal">
+            <thead>
+                <tr>
+                    <th style="width:35%">Fase</th>
+                    <th>Automazione Copilot</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Ricezione richiesta d'acquisto</td>
+                    <td>Classifica la richiesta, verifica budget residuo, identifica il fornitore preferenziale</td>
+                </tr>
+                <tr>
+                    <td>Confronto offerte</td>
+                    <td>Estrae i dati chiave da PDF e fogli di calcolo, genera tabella comparativa</td>
+                </tr>
+                <tr>
+                    <td>Ordine e follow-up</td>
+                    <td>Prepara la comunicazione al fornitore e pianifica il reminder automatico</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 14 — FOLLOW-UP & REPORTING
+         ========================================== -->
+    <section class="slide">
+        <span class="badge badge-purple reveal">DEEP DIVE</span>
+        <h2 class="slide-title reveal">Follow-up e Reporting</h2>
+        <div class="cards-grid cols-2">
+            <div class="card card-accent-top reveal">
+                <div class="card-label">FOLLOW-UP INTELLIGENTE</div>
+                <ul class="bullet-list">
+                    <li>Monitora le conversazioni e segnala azioni non completate</li>
+                    <li>Genera messaggi personalizzati con il contesto appropriato</li>
+                    <li>Scala automaticamente se non riceve risposta entro N giorni</li>
+                </ul>
+            </div>
+            <div class="card card-accent-top orange reveal">
+                <div class="card-label orange">REPORTING AUTOMATICO</div>
+                <ul class="bullet-list orange">
+                    <li>Aggregazione dati da Excel, Lists, Planner</li>
+                    <li>Report periodici con narrative in linguaggio naturale</li>
+                    <li>Evidenziazione di trend, anomalie e scostamenti</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 15 — ECOSISTEMA M365
+         ========================================== -->
+    <section class="slide">
+        <span class="badge badge-blue reveal">INTEGRAZIONE</span>
+        <h2 class="slide-title reveal">Ecosistema Microsoft 365</h2>
+        <p class="slide-subtitle reveal">Copilot orchestra i workflow attraverso tutte le app</p>
+        <div class="eco-grid">
+            <div class="eco-card reveal">
+                <div class="eco-icon">📧</div>
+                <div class="eco-name">Outlook</div>
+                <div class="eco-desc">Ricezione e analisi input</div>
+            </div>
+            <div class="eco-card reveal">
+                <div class="eco-icon">💬</div>
+                <div class="eco-name">Teams</div>
+                <div class="eco-desc">Collaborazione e approvazioni</div>
+            </div>
+            <div class="eco-card reveal">
+                <div class="eco-icon">📁</div>
+                <div class="eco-name">SharePoint</div>
+                <div class="eco-desc">Archiviazione e recupero documenti</div>
+            </div>
+            <div class="eco-card reveal">
+                <div class="eco-icon">✅</div>
+                <div class="eco-name">Planner</div>
+                <div class="eco-desc">Gestione task e scadenze</div>
+            </div>
+            <div class="eco-card reveal">
+                <div class="eco-icon">⚡</div>
+                <div class="eco-name">Power Automate</div>
+                <div class="eco-desc">Flussi automatizzati</div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 16 — IMPATTO ATTESO
+         ========================================== -->
+    <section class="slide" id="impactSlide">
+        <span class="badge badge-green reveal">RISULTATI</span>
+        <h2 class="slide-title reveal">Impatto atteso</h2>
+        <p class="slide-subtitle reveal">Benefici misurabili sull'organizzazione</p>
+        <div class="impact-bars reveal">
+            <div class="impact-row">
+                <div class="impact-label">Tempo</div>
+                <div class="impact-bar-bg">
+                    <div class="impact-bar-fill bar-blue" data-width="50%">−30-50%</div>
+                </div>
+            </div>
+            <div class="impact-row">
+                <div class="impact-label">Qualità</div>
+                <div class="impact-bar-bg">
+                    <div class="impact-bar-fill bar-purple" data-width="75%">Contesto completo</div>
+                </div>
+            </div>
+            <div class="impact-row">
+                <div class="impact-label">Decisioni</div>
+                <div class="impact-bar-bg">
+                    <div class="impact-bar-fill bar-orange" data-width="85%">Insight real-time</div>
+                </div>
+            </div>
+            <div class="impact-row">
+                <div class="impact-label">Collaborazione</div>
+                <div class="impact-bar-bg">
+                    <div class="impact-bar-fill bar-green" data-width="70%">Connessione automatica</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 17 — MESSAGGI CHIAVE
+         ========================================== -->
+    <section class="slide">
+        <span class="badge badge-blue reveal">TAKEAWAY</span>
+        <h2 class="slide-title reveal">Messaggi chiave</h2>
+        <div class="key-messages">
+            <div class="key-message reveal">
+                <div class="key-num accent-blue">1</div>
+                <div class="key-body">
+                    <h3>Copilot non sostituisce le persone</h3>
+                    <p>Le libera dal lavoro a basso valore per concentrarsi su ciò che conta davvero.</p>
+                </div>
+            </div>
+            <div class="key-message reveal">
+                <div class="key-num accent-orange">2</div>
+                <div class="key-body">
+                    <h3>Work IQ è il collante</h3>
+                    <p>Trasforma dati frammentati in un quadro decisionale coerente e azionabile.</p>
+                </div>
+            </div>
+            <div class="key-message reveal">
+                <div class="key-num accent-purple">3</div>
+                <div class="key-body">
+                    <h3>L'automazione è progressiva</h3>
+                    <p>Si parte da suggerimenti, si arriva a workflow completamente automatizzati.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ==========================================
+         SLIDE 18 — THANK YOU
+         ========================================== -->
+    <section class="slide slide-thankyou">
+        <div class="glow-blue" style="top:20%; left:30%;"></div>
+        <div class="glow-purple" style="bottom:25%; right:25%;"></div>
+        <h2 class="thankyou-text reveal">THANK YOU</h2>
+        <p class="thankyou-sub reveal">Lavorare meglio, non di più.</p>
+        <p class="thankyou-meta reveal">Cluster Reply · Microsoft 365 Copilot & Work IQ</p>
+    </section>
+
+
+    <!-- ===========================================
+         JAVASCRIPT — SLIDE CONTROLLER
+         Navigation: keyboard, wheel, touch, dots
+         =========================================== -->
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.touchStartY = 0;
+
+                this.createNavDots();
+                this.setupIntersectionObserver();
+                this.setupKeyboard();
+                this.setupWheel();
+                this.setupTouch();
+                this.updateUI();
+
+                this.slides[0].classList.add('visible');
+            }
+
+            createNavDots() {
+                const nav = document.getElementById('navDots');
+                this.slides.forEach((_, i) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot';
+                    dot.setAttribute('aria-label', 'Vai alla slide ' + (i + 1));
+                    dot.addEventListener('click', () => this.goTo(i));
+                    nav.appendChild(dot);
+                });
+                this.dots = nav.querySelectorAll('.nav-dot');
+            }
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            if (entry.target.id === 'impactSlide') this.animateBars();
+                        }
+                    });
+                }, { threshold: 0.4 });
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            animateBars() {
+                document.querySelectorAll('.impact-bar-fill').forEach((bar, i) => {
+                    setTimeout(() => { bar.style.width = bar.dataset.width; }, i * 150);
+                });
+            }
+
+            setupKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'ArrowDown': case 'ArrowRight': case ' ':
+                            e.preventDefault(); this.next(); break;
+                        case 'ArrowUp': case 'ArrowLeft':
+                            e.preventDefault(); this.prev(); break;
+                        case 'Home': e.preventDefault(); this.goTo(0); break;
+                        case 'End': e.preventDefault(); this.goTo(this.slides.length - 1); break;
+                    }
+                });
+            }
+
+            setupWheel() {
+                let lastWheel = 0;
+                document.addEventListener('wheel', (e) => {
+                    const now = Date.now();
+                    if (now - lastWheel < 800) return;
+                    lastWheel = now;
+                    if (e.deltaY > 30) this.next();
+                    else if (e.deltaY < -30) this.prev();
+                }, { passive: true });
+            }
+
+            setupTouch() {
+                document.addEventListener('touchstart', (e) => {
+                    this.touchStartY = e.touches[0].clientY;
+                }, { passive: true });
+                document.addEventListener('touchend', (e) => {
+                    const dy = this.touchStartY - e.changedTouches[0].clientY;
+                    if (Math.abs(dy) > 50) { dy > 0 ? this.next() : this.prev(); }
+                }, { passive: true });
+            }
+
+            next() { if (this.currentSlide < this.slides.length - 1) this.goTo(this.currentSlide + 1); }
+            prev() { if (this.currentSlide > 0) this.goTo(this.currentSlide - 1); }
+
+            goTo(index) {
+                this.currentSlide = index;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                this.updateUI();
+            }
+
+            updateUI() {
+                const progress = ((this.currentSlide + 1) / this.slides.length) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
+                this.dots.forEach((dot, i) => dot.classList.toggle('active', i === this.currentSlide));
+                document.getElementById('slideCounter').textContent =
+                    (this.currentSlide + 1) + ' / ' + this.slides.length;
+            }
+        }
+
+        const presentation = new SlidePresentation();
+
+        const scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const index = Array.from(document.querySelectorAll('.slide')).indexOf(entry.target);
+                    if (index !== -1) {
+                        presentation.currentSlide = index;
+                        presentation.updateUI();
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
+        document.querySelectorAll('.slide').forEach(s => scrollObserver.observe(s));
+    </script>
+
+</body>
+</html>
